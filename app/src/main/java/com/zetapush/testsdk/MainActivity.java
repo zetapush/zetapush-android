@@ -20,8 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private ZetaPushService mZPService = null;
     private boolean mBound = false;
 
-    static final String BUSINESSID = "jwlqc1KP";
-    static final String WEAK_DEP_ID = "KR-f";
+    static final String BUSINESSID = "YOUR_BUSINESS_ID";
+    static final String WEAK_DEP_ID = "YOUR_WEAK_DEP_ID";
     static final String RESOURCE= "android";
 
     @Override
