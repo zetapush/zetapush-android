@@ -1,2 +1,0 @@
-configurations.maybeCreate("default")
-artifacts.add("default", file('android-client-2.6.5-jar-with-dependencies.jar'))

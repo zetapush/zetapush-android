@@ -29,5 +29,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
-    compile files('/home/mikaelmorvan/AndroidStudioProjects/TestSDK/android-client-2.6.5-jar-with-dependencies/android-client-2.6.5-jar-with-dependencies.jar')
+    compile 'com.zetapush:android-client:[2.6.7, )'
 }
