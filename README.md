@@ -6,6 +6,8 @@ Example of Android project that uses ZetaPush Android SDK
 
 Add ZetaPush Nexus repository (`'http://nexus.zpush.io:8080/repository/public/'`) to your main Gradle file (`build.gradle` at root of your Android project):
 
+![build.gradle](https://user-images.githubusercontent.com/645363/28027104-4d585dca-6598-11e7-97b8-82a9e1c698bf.jpg)
+
 ```groovy
 ...
 allprojects {
@@ -20,6 +22,8 @@ allprojects {
 ```
 
 Then add the ZetaPush Android dependency `'com.zetapush:android-client:[2.6.7, )'` to the application gradle file (`app/build.gradle`):
+
+![app/build.gradle](https://user-images.githubusercontent.com/645363/28027256-c62b6a6c-6598-11e7-8245-2e0758b5eb23.jpg)
 
 ```groovy
 ...
@@ -44,6 +48,8 @@ The classes that are using missing classes are never used by ZetaPush SDK. The c
 utilities provided by external libraries.
 
 To disable lint checking, add `lintOptions` section in android configuration (in `app/build.gradle` file):
+
+![app/build.gradle and app/lint.xml](https://user-images.githubusercontent.com/645363/28027103-4d576d66-6598-11e7-8162-9566b205342b.jpg)
 
 ```groovy
 android {
