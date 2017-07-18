@@ -246,7 +246,6 @@ public class FakeServiceConnection implements ServiceConnection {
 The `initService` method is called in order to initiate the connection to the ZetaPush backend. The connection is done using your business/sandbox identifier (replace `BUSINESSID` value by your business/sandbox identifier).
 See [Authentication for more information about how to connect and authenticate to ZetaPush backend](#authentication).
 
-(#authentication) 
 ### Authentication
 
 #### Anonymous authentication
