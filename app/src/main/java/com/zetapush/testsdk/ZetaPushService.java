@@ -13,27 +13,54 @@ import com.zetapush.client.highlevel.factories.ZetapushClientFactory;
 
 
 public class ZetaPushService extends Service {
-    private final IBinder mBinder = new ZPServiceBinder();
+    private final IBinder binder = new ZPServiceBinder();
 
-    ZetapushClient zpClient= null;
+    ZetapushClient zetapushClient = null;
 
     public ZetaPushService() {
     }
 
     public class ZPServiceBinder extends Binder {
-        ZetaPushService getService() {
+        public ZetaPushService getService() {
             // Return this instance of LocalService so clients can call public methods
             return ZetaPushService.this;
         }
     }
 
-    public boolean initService(String businessId, ZetapushHandshakeManager zpHM, ConnectionStatusListener csListener, String resource){
+    /**
+     * TODO: this component should be directly provided by the SDK
+     * TODO: Do not return a boolean, keep the exception in order to know that there is an error and why
+     *
+     * Initializes the ZetaPush client:
+     * <ul>
+     * <li>Creates a handshake manager (for handling connection and
+     * authentication)</li>
+     * <li>Registers a listener to be notified of the connection status
+     * (connected, disconnected, ...)</li>
+     * <li>Connects to the ZetaPush server using the provided business/sandbox
+     * identifier</li>
+     * </ul>
+     *
+     * @param businessId
+     *            the business/sandbox identifer to connect to
+     * @param handshakeManager
+     *            the handshake manager used to handle connection and
+     *            authentication
+     * @param csListener
+     *            a listener to be notified about the status of the connection
+     * @param resource
+     *            an optional resource to identify the type of the client for
+     *            example
+     * @return true if the connection is initiated, false if something went
+     *         wrong
+     */
+    public boolean initService(String businessId, ZetapushHandshakeManager handshakeManager, ConnectionStatusListener csListener, String resource){
         Log.d("initService", "enter");
-        if (zpClient==null){
-            zpClient = ZetapushClientFactory.create(businessId,zpHM, resource);
-            zpClient.addConnectionStatusListener(csListener);
+        if (zetapushClient == null){
+            zetapushClient = ZetapushClientFactory.create(businessId, handshakeManager, resource);
+            zetapushClient.addConnectionStatusListener(csListener);
             try {
-                zpClient.start();
+                zetapushClient.start();
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -42,12 +69,12 @@ public class ZetaPushService extends Service {
         return true;
     }
 
-    public ZetapushClient getZpClient(){
-        return zpClient;
+    public ZetapushClient getZetapushClient(){
+        return zetapushClient;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return binder;
     }
 }
