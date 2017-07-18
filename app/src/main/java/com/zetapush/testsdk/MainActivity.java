@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.zetapush.client.highlevel.factories.ZetapushClientFactory;
+
 public class MainActivity extends AppCompatActivity {
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -16,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ZetapushClientFactory.setRootUrl("http://vm-zbo:8080/zbo/pub/business");
     }
 
     @Override

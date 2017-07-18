@@ -9,8 +9,8 @@ import com.zetapush.client.highlevel.factories.ZetapushAuthentFactory;
 
 
 public class ZetaPushServiceAnonymousAuthenticationServiceConnection implements ServiceConnection {
-    static final String BUSINESSID = "YOUR_BUSINESS_ID";
-    static final String WEAK_DEP_ID = "YOUR_WEAK_DEP_ID";
+    static final String BUSINESSID = "nL_L8ZqL";
+    static final String WEAK_DEP_ID = "weak_0";
     static final String RESOURCE= "android";
 
     private ZetaPushService zetapushService = null;

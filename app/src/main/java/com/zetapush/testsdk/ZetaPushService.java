@@ -56,16 +56,23 @@ public class ZetaPushService extends Service {
      */
     public boolean initService(String businessId, ZetapushHandshakeManager handshakeManager, ConnectionStatusListener csListener, String resource){
         Log.d("initService", "enter");
-        if (zetapushClient == null){
-            zetapushClient = ZetapushClientFactory.create(businessId, handshakeManager, resource);
-            zetapushClient.addConnectionStatusListener(csListener);
-            try {
-                zetapushClient.start();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
+
+        try {
+            if (zetapushClient == null){
+                zetapushClient = ZetapushClientFactory.create(businessId, handshakeManager, resource);
+                zetapushClient.addConnectionStatusListener(csListener);
+                try {
+                    zetapushClient.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
             }
+        } catch (Exception e) {
+            Log.e("ERROR", e.toString());
         }
+
+
         return true;
     }
 
