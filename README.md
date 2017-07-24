@@ -169,6 +169,8 @@ To call macroscripts, you need to generate classes from your ZetaPush project. F
 
     zms sdk -l java -i com.zetapush.monprojet -o /tmp/output_folder
 
+// TODO : Provide the CLI and explain how to install it
+
 Then you put the folder beside the package of your Activity in your Android code. When the classes are imported, you need to use a specific API to call macroscripts :
 
 *   Asynchrone API
@@ -344,13 +346,14 @@ Here is a basic example with a button to launch the connection and another to ca
 
     public class MainActivity extends Activity {
 
-        // VARIABLES
         private Button                          btnConnection;
         private Button                          btnMacro;
+        private Thread                          threadMacro;
 
+
+        // ZetaPush variables
         private SmartClient                     client;
         private ZetaPushConnectionReceiver      zetaPushReceiver = new ZetaPushConnectionReceiver();
-
         private final String                    SANDBOX_ID       = "nL_L8ZqL";
         private final String                    LOGIN            = "user";
         private final String                    PASSWORD         = "password";
@@ -362,7 +365,7 @@ Here is a basic example with a button to launch the connection and another to ca
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
-            // Create client
+            // Create the ZetaPush Client
             client = new SmartClient(MainActivity.this);
 
             // UI
@@ -373,22 +376,25 @@ Here is a basic example with a button to launch the connection and another to ca
             btnConnection.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // Launch the connection to the ZetaPush platform
                     client.connect(SANDBOX_ID, LOGIN, PASSWORD);
                 }
             });
 
-
             btnMacro.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new Thread(new Runnable() {
+
+                    // ZetaPush code to call macroscript (Asynchrone)
+                    threadMacro = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             MacroAsyncApi macroApi = MacroAsyncApi.Factory.createService(client.getZetaPushClient(), "macro_0");
                             MacroAsyncApiListener.Factory.registerListener(new MacroApiListener(), client.getZetaPushClient(), "macro_0");
                             macroApi.welcome(new welcomeInput("test"));
                         }
-                    }).start();
+                    });
+                    threadMacro.start();
                 }
             });
         }
@@ -408,10 +414,15 @@ Here is a basic example with a button to launch the connection and another to ca
         @Override
         protected void onDestroy() {
             client.disconnect();
+            try {
+                threadMacro.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             super.onDestroy();
         }
 
-        // BroadcastReceiver for the connection status
+        // BroadcastReceiver for the connection status of ZetaPush
         private class ZetaPushConnectionReceiver extends BroadcastReceiver {
 
             @Override
@@ -438,3 +449,5 @@ Here is a basic example with a button to launch the connection and another to ca
             }
         }
     }
+
+
