@@ -21,9 +21,9 @@ public class MainActivity extends Activity {
     private SmartClient                     client;
     private ZetaPushConnectionReceiver      zetaPushReceiver = new ZetaPushConnectionReceiver();
 
-    private final String                    SANDBOX_ID       = "nL_L8ZqL";
-    private final String                    LOGIN            = "user";
-    private final String                    PASSWORD         = "password";
+    private final String                    SANDBOX_ID       = "YOUR_BISINESS_ID";
+    private final String                    LOGIN            = "YOUR_USER";
+    private final String                    PASSWORD         = "YOUR_PASSWORD";
 
     private Button                          btnConnection;
 
@@ -33,7 +33,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ZetapushClientFactory.setRootUrl("http://vm-zbo:8080/zbo/pub/business");
 
         btnConnection = (Button) findViewById(R.id.btnConnection);
 
