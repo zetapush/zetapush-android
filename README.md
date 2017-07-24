@@ -77,266 +77,364 @@ Creates a file named `lint.xml` in `app` directory with the following content:
 </lint>
 ```
 
+# ZetaPush Android Example
+
 ## Usage
-
-### Initialization
-
-To provide the ZetaPush client as an Android service, you have to create a class with the following content:
-
-```java
-import android.app.Service;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
-import android.util.Log;
-
-import com.zetapush.client.ConnectionStatusListener;
-import com.zetapush.client.highlevel.ZetapushClient;
-import com.zetapush.client.highlevel.ZetapushHandshakeManager;
-import com.zetapush.client.highlevel.factories.ZetapushClientFactory;
-
-public class ZetaPushService extends Service {
-	private final IBinder mBinder = new ZPServiceBinder();
-
-	ZetapushClient zpClient = null;
-
-	public ZetaPushService() {
-	}
-
-	public class ZPServiceBinder extends Binder {
-		ZetaPushService getService() {
-			// Return this instance of LocalService so clients can call public methods
-			return ZetaPushService.this;
-		}
-	}
-
-	/**
-	 * Initializes the ZetaPush client:
-	 * <ul>
-	 * <li>Creates a handshake manager (for handling connection and
-	 * authentication)</li>
-	 * <li>Registers a listener to be notified of the connection status
-	 * (connected, disconnected, ...)</li>
-	 * <li>Connects to the ZetaPush server using the provided business/sandbox
-	 * identifier</li>
-	 * </ul>
-	 * 
-	 * @param businessId
-	 *            the business/sandbox identifer to connect to
-	 * @param handshakeManager
-	 *            the handshake manager used to handle connection and
-	 *            authentication
-	 * @param csListener
-	 *            a listener to be notified about the status of the connection
-	 * @param resource
-	 *            an optional resource to identify the type of the client for
-	 *            example
-	 * @return true if the connection is initiated, false if something went
-	 *         wrong
-	 */
-	public boolean initService(String businessId, ZetapushHandshakeManager handshakeManager, ConnectionStatusListener csListener, String resource) {
-		Log.d("initService", "enter");
-		if (zpClient == null) {
-			zpClient = ZetapushClientFactory.create(businessId, handshakeManager, resource);
-			zpClient.addConnectionStatusListener(csListener);
-			try {
-				zpClient.start();
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public ZetapushClient getZpClient() {
-		return zpClient;
-	}
-
-	@Override
-	public IBinder onBind(Intent intent) {
-		return mBinder;
-	}
-}
-```
-
-The service is now declared and ready to be used. The `initService` method is used to initiate a connection to the ZetaPush backend.
-Connection to the ZetaPush backend requires a business/sandbox identifier that you get by [creating a sandbox](https://doc.zetapush.com/quickstart/).
-During the connection to the server (handshake), an authentication is required. There exists several [authentication mechanisms](#authentication) (authentication will be described later).
-
-Now, to use the Android service in your activity, you have to ask Android to give you an instance of that service:
-
-```java
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-
-public class MainActivity extends AppCompatActivity {
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection zetapushServiceConnection = new ZetaPushServiceAnonymousAuthenticationServiceConnection();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // init an intent that will create the ZetaPushService
-        Intent intent = new Intent(this, ZetaPushService.class);
-        // Bind to LocalService
-        bindService(intent, zetapushServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Unbind from the service
-        Log.d("onStop", "onStop");
-        unbindService(zetapushServiceConnection);
-    }
-
-}
-```
-
-The `Intent` is used to indicate that Android has to create the ZetaPush service.
-The `ServiceConnection` is used to know when the Android service is bound to the activity. The initialization of ZetaPush happens in that `ServiceConnection`:
-
-```java
-
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.util.Log;
-
-import com.zetapush.client.highlevel.factories.ZetapushAuthentFactory;
-
-
-public class FakeServiceConnection implements ServiceConnection {
-
-    private ZetaPushService zetapushService = null;
-
-    @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
-        Log.d("ServiceConnection", "onServiceConnected");
-        // We've bound to LocalService, cast the IBinder and get LocalService instance
-        ZetaPushService.ZPServiceBinder binder = (ZetaPushService.ZPServiceBinder) service;
-        zetapushService = binder.getService();
-        new Thread(new Runnable() {
-            public void run() {
-                zetapushService.initService(...);
-            }
-        }).start();
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName arg0) {
-        Log.d("ServiceConnection", "onServiceDisconnected");
-    }
-}
-```
-
-The `initService` method is called in order to initiate the connection to the ZetaPush backend. The connection is done using your business/sandbox identifier (replace `BUSINESSID` value by your business/sandbox identifier).
-See [Authentication for more information about how to connect and authenticate to ZetaPush backend](#authentication).
 
 ### Authentication
 
-#### Anonymous authentication
+To launch the connection to the ZetaPush platform, we need to have a **ZetaPush Client**. You need to create either a **WeakClient** or a **SmartClient**. The first one provides an anonymous authentication and the second one provides both an anonymous authentication and a simple authentication (we can choose during to connection).
 
-Initialization of ZetaPush service uses a `ZetapushHandshakeManager` to handle the authentication. The previous sample uses a weak (anonymous) authentication to ZetaPush backend:
+#### WeakClient
 
-```java
+    WeakClient client = new WeakClient(MainActivity.this);
+    client.connect(SANDBOX_ID);
+    // or client.connect(SANDBOX_ID, DEPLOY_ID);
+    // or client.connect(SANDBOX_ID, DEPLOY_ID, resource);
 
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.util.Log;
+The `SANDBOX_ID` is the ID of your sandbox on the ZetaPush platform. Then, the `DEPLOY_ID` is the id of your authentication service, by default this is *weak_0*. The `resource` is a string to identify your application.
 
-import com.zetapush.client.highlevel.factories.ZetapushAuthentFactory;
+#### SmartClient
+
+    SmartClient client = new SmartClient(MainActivity.this);
+    client.connect(SANDBOX_ID);
+    // or client.connect(SANDBOX_ID, DEPLOY_ID);
+    // or client.connect(SANDBOX_ID, LOGIN, PASSWORD);
+    // or client.connect(SANDBOX_ID, LOGIN, PASSWORD, DEPLOY_ID);
+    // or client.connect(SANDBOX_ID, LOGIN, PASSWORD, DEPLOY_ID, resource);
 
 
-public class ZetaPushServiceAnonymousAuthenticationServiceConnection implements ServiceConnection {
-    static final String BUSINESSID = "YOUR_BUSINESS_ID";
-    static final String WEAK_DEP_ID = "YOUR_WEAK_DEP_ID";
-    static final String RESOURCE= "android";
+The variables are the same that the `WeakClient`. The `LOGIN` and the `PASSWORD` are the credentials for the user in his simple authentication. If you put credentials you will connect you as simple authentication, if not, as weak authentication.
 
-    private ZetaPushService zetapushService = null;
+
+#### Disconnection
+
+    client.disconnect();
+
+
+#### ConnectionListener
+
+To get the status connection, you need to create a BroadcastReceiver and listen on the differents events :
+
+
+
+    private ZetaPushConnectionReceiver zetaPushReceiver = new ZetaPushConnectionReceiver();
+
 
     @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
-        Log.d("ServiceConnection", "onServiceConnected");
-        // We've bound to LocalService, cast the IBinder and get LocalService instance
-        ZetaPushService.ZPServiceBinder binder = (ZetaPushService.ZPServiceBinder) service;
-        zetapushService = binder.getService();
-        new Thread(new Runnable() {
-            public void run() {
-                zetapushService.initService(BUSINESSID, 
-                                            ZetapushAuthentFactory.createWeakHandshake(BUSINESSID, WEAK_DEP_ID), 
-                                            new LogConnectionStatusListener(), 
-                                            RESOURCE);
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(zetaPushReceiver, new IntentFilter(ZetaPushService.FLAG_ACTION_BROADCAST));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(zetaPushReceiver);
+    }
+
+
+    private class ZetaPushConnectionReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            switch (intent.getStringExtra(ZetaPushService.FLAG_STATE_CONNECTION)) {
+
+                case ZetaPushService.FLAG_CONNECTION_ESTABLISHED:
+                    Log.e("STATE CONNECTION", "Connection established");
+                    break;
+
+                case ZetaPushService.FLAG_CONNECTION_CLOSED:
+                    Log.e("STATE CONNECTION", "Connection closed");
+                    break;
             }
-        }).start();
+        }
     }
 
-    @Override
-    public void onServiceDisconnected(ComponentName arg0) {
-        Log.d("ServiceConnection", "onServiceDisconnected");
-    }
-}
-```
 
-You have to replace `BUSINESSID` value by your business/sandbox identifier and `WEAK_DEP_ID` by the identifier of your weak authentication service (deployed in your sandbox).
+For example, here we only listen on the `ConnectionEstablished` and `ConnectionClosed` events. Here the list of connection events :
 
-
-#### Login/password authentication
-
-If you want to authenticate your users, you may need to use a login/password pair. The following sample shows how to define a `ServiceConnection` that uses:
-
-```java
-
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.util.Log;
-
-import com.zetapush.client.highlevel.factories.ZetapushAuthentFactory;
+*   SuccessfullHandshake
+*   FailedHandshake
+*   ConnectionEstablished
+*   ConnectionBroken
+*   ConnectionClosed
+*   MessageLost
 
 
-public class ZetaPushServiceLoginPasswordAuthenticationServiceConnection implements ServiceConnection {
-    static final String BUSINESSID = "YOUR_BUSINESS_ID";
-    static final String SIMPLE_DEP_ID = "YOUR_SIMPLE_DEP_ID";
-    static final String RESOURCE= "android";
+### Macroscripts
 
-    private ZetaPushService zetapushService = null;
+To call macroscripts, you need to generate classes from your ZetaPush project. For this, you need to use the command line like this :
 
-    @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
-        Log.d("ServiceConnection", "onServiceConnected");
-        // We've bound to LocalService, cast the IBinder and get LocalService instance
-        ZetaPushService.ZPServiceBinder binder = (ZetaPushService.ZPServiceBinder) service;
-        zetapushService = binder.getService();
-        new Thread(new Runnable() {
-            public void run() {
-                zetapushService.initService(BUSINESSID, 
-                                            ZetapushAuthentFactory.createSimpleHandshake("<login>", "<password>", SIMPLE_DEP_ID), 
-                                            new LogConnectionStatusListener(), 
-                                            RESOURCE);
+    zms sdk -l java -i com.zetapush.monprojet -o /tmp/output_folder
+
+Then you put the folder beside the package of your Activity in your Android code. When the classes are imported, you need to use a specific API to call macroscripts :
+
+*   Asynchrone API
+*   Synchrone API
+*   Future API
+
+The name of your interfaces and classes are specifics to your project but you have an example for each case below. Because we use communication network you need to launch the macroscript calls outside the UI Thread.
+
+
+#### Utils
+
+To properly understand how to call macroscripts, we need to define some variables. First when we use `"macro_0"`, this is the name of the macroscript service in your ZetaPush project. By default this is *macro_0*. The variable `client` is your `WeakClient` or `SmartClient` object.
+
+Then, the macroscript used to make our tests is named `welcome` :
+
+    /**
+    * Takes a message as input, and returns it, with a server message
+    */
+    macroscript welcome(/** message from the client */ string message = "Hello") {
+        // ...
+    } return {clientMessage : message, serverMessage : WELCOME_MESSAGE}
+
+
+#### Synchrone API
+
+
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                MacroSyncApi macroApi = MacroSyncApi.Factory.createService(client.getZetaPushClient(), "macro_0");
+                welcomeCompletion resultMacro = macroApi.welcome(new welcomeInput("test"));
+                Log.e("RESULT MACRO", resultMacro.getResult().toString());
             }
-        }).start();
+        }
+    }).start();
+
+
+#### Asynchrone API
+
+In this case, you need to create a listener that implements the AsyncApiListener.
+
+
+    private class MacroApiListener implements MacroAsyncApiListener {
+
+        @Override
+        public void welcome(welcomeCompletion notification) {
+            Log.e("RESULT WELCOME", notification.getResult().toString());
+        }
     }
 
-    @Override
-    public void onServiceDisconnected(ComponentName arg0) {
-        Log.d("ServiceConnection", "onServiceDisconnected");
-    }
-}
-```
 
-You have to replace `BUSINESSID` value by your business/sandbox identifier and `SIMPLE_DEP_ID` by the identifier of your simple authentication service (deployed in your sandbox).
+Then we can call our macroscripts :
+
+
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                MacroAsyncApi macroApi = MacroAsyncApi.Factory.createService(client.getZetaPushClient(), "macro_0");
+                MacroAsyncApiListener.Factory.registerListener(new MacroApiListener(), client.getZetaPushClient(), "macro_0");
+                macroApi.welcome(new welcomeInput("test"));
+            }
+        }
+    }).start();
+
+
+#### Future API
+
+    private Future<welcomeCompletion> resultMacro;
+
+
+    ...
+
+
+    new Thread(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                MacroFutureApi macroApi = MacroFutureApi.Factory.createService(client.getZetaPushClient(), "macro_0");
+                resultMacro = macroApiFuture.welcome(new welcomeInput("test"));
+            }
+        }
+    }).start();
+
+
+    ...
+
+
+    try {
+        welcomeCompletion output = resultMacro.get();
+        Log.e("RESULT MACRO", output.getResult().toString());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+
+### Storage
+
+The Android SDK provides you the possibility to choose the method to save the credentials and the token used in simple authentication and weak authentication respectively.
+
+By default the informations are saved using the Key-Value method of the Android system. 
+You change this when you create your client. Here the signature of `WeakClient` and `SmartClient` constructors :
+
+    SmartClient(Activity);
+    SmartClient(Activity, StorageTokenInterface);
+    SmartClient(Activity, StorageCredentialsInterface);
+    SmartClient(Activity, StorageTokenInterface, StorageCredentialsInterface);
+
+    WeakClient(Activity);
+    WeakClient(Activity, StorageTokenInterface);
+    WeakClient(Activity, StorageCredentialsInterface);
+    WeakClient(Activity, StorageTokenInterface, StorageCredentialsInterface);
+
+
+For example if you don't want to save any data, you can use the `NoTokenStorage` and `NoCredentialsStorage` classes that implement the needed interfaces :
+
+    SmartClient client = new SmartClient(MainActivity.this, new NoTokenStorage(), new NoCredentialsStorage());
+
+Of course you also can choose to implements yourself the methods to save, get and delete data. For example if you want to change the method to handle token :
+
+
+    SmartClient client = new SmartClient(MainActivity.this, new StorageTokenInterface() {
+        @Override
+        public void saveToken(String token) {
+
+        }
+
+        @Override
+        public String getToken() {
+            return null;
+        }
+
+        @Override
+        public void clearToken() {
+
+        }
+    });
+
+
+### Secondary methods
+
+
+The clients implements many other explicit methods. We list them :
+
+#### Client (superclass of WeakClient and SmartClient)
+
+*   getUserKey()
+*   isConnected()
+*   canDoConnection()
+*   getSandboxId()
+*   getResource()
+*   setResource()
+
+#### SmartClient
+
+*   getCredentials()
+*   hasCredentials()
+*   isStronglyAuthenticated()
+*   isWeaklyAuthenticated()
+
+
+#### WeakClient
+
+*   getToken()
+
+
+
+### Basic example
+
+Here is a basic example with a button to launch the connection and another to call a macroscript. We use in our case the asynchrone API and a SmartClient.
+
+
+    public class MainActivity extends Activity {
+
+        // VARIABLES
+        private Button                          btnConnection;
+        private Button                          btnMacro;
+
+        private SmartClient                     client;
+        private ZetaPushConnectionReceiver      zetaPushReceiver = new ZetaPushConnectionReceiver();
+
+        private final String                    SANDBOX_ID       = "nL_L8ZqL";
+        private final String                    LOGIN            = "user";
+        private final String                    PASSWORD         = "password";
+
+
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+            // Create client
+            client = new SmartClient(MainActivity.this);
+
+            // UI
+            btnConnection = (Button) findViewById(R.id.btnConnection);
+            btnMacro = (Button) findViewById(R.id.btnMacro);
+
+            // buttons
+            btnConnection.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    client.connect(SANDBOX_ID, LOGIN, PASSWORD);
+                }
+            });
+
+
+            btnMacro.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MacroAsyncApi macroApi = MacroAsyncApi.Factory.createService(client.getZetaPushClient(), "macro_0");
+                            MacroAsyncApiListener.Factory.registerListener(new MacroApiListener(), client.getZetaPushClient(), "macro_0");
+                            macroApi.welcome(new welcomeInput("test"));
+                        }
+                    }).start();
+                }
+            });
+        }
+
+        @Override
+        protected void onResume() {
+            super.onResume();
+            registerReceiver(zetaPushReceiver, new IntentFilter(ZetaPushService.FLAG_ACTION_BROADCAST));
+        }
+
+        @Override
+        protected void onPause() {
+            super.onPause();
+            unregisterReceiver(zetaPushReceiver);
+        }
+
+        @Override
+        protected void onDestroy() {
+            client.disconnect();
+            super.onDestroy();
+        }
+
+        // BroadcastReceiver for the connection status
+        private class ZetaPushConnectionReceiver extends BroadcastReceiver {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                switch (intent.getStringExtra(ZetaPushService.FLAG_STATE_CONNECTION)) {
+
+                    case ZetaPushService.FLAG_CONNECTION_ESTABLISHED:
+                        Log.e("STATE CONNECTION", "Connection established");
+                        break;
+
+                    case ZetaPushService.FLAG_CONNECTION_CLOSED:
+                        Log.e("STATE CONNECTION", "Connection closed");
+                        break;
+                }
+            }
+        }
+
+        private class MacroApiListener implements AndroidpreprodAsyncApiListener {
+
+            @Override
+            public void welcome(welcomeCompletion notification) {
+                Log.e("RESULT MACRO", notification.getResult().toString());
+            }
+        }
+    }
