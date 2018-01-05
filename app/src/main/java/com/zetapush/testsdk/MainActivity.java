@@ -5,15 +5,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import com.zetapush.client.highlevel.factories.ZetapushClientFactory;
+import com.zetapush.library.SmartClient;
+import com.zetapush.library.ZetaPushService;
 
 public class MainActivity extends Activity {
 
@@ -21,12 +18,11 @@ public class MainActivity extends Activity {
     private SmartClient                     client;
     private ZetaPushConnectionReceiver      zetaPushReceiver = new ZetaPushConnectionReceiver();
 
-    private final String                    SANDBOX_ID       = "YOUR_BISINESS_ID";
-    private final String                    LOGIN            = "YOUR_USER";
-    private final String                    PASSWORD         = "YOUR_PASSWORD";
+    private final String                    SANDBOX_ID       = "----------";
+    private final String                    LOGIN            = "android";
+    private final String                    PASSWORD         = "password";
 
     private Button                          btnConnection;
-
 
 
     @Override
