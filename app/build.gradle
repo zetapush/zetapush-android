@@ -33,5 +33,5 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
     compile 'com.zetapush:android-client:2.7.3'
-    compile project(":zetapushlibrary")
+    compile project(':android-library')
 }

@@ -20,6 +20,7 @@ public class Client {
     protected ZetaPushService zetaPushService = null;
     private StorageTokenInterface storageTokenHandler = null;
     private StorageCredentialsInterface storageCredentialHandler = null;
+    private Activity activity;
 
     /**
      * Constructor for a ZetaPush Client
@@ -27,7 +28,8 @@ public class Client {
      */
     public Client(Activity activity) {
         Intent intent = new Intent(activity, ZetaPushService.class);
-        activity.bindService(intent, onService, Context.BIND_AUTO_CREATE);
+        this.activity = activity;
+        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         this.storageTokenHandler = new KeyValueTokenStorage(activity, "key_storage_token");
         this.storageCredentialHandler = new KeyValueCredentialsStorage(activity, "key_storage_login", "key_storage_password");
     }
@@ -40,7 +42,8 @@ public class Client {
      */
     public Client(Activity activity, StorageTokenInterface storageTokenHandler) {
         Intent intent = new Intent(activity, ZetaPushService.class);
-        activity.bindService(intent, onService, Context.BIND_AUTO_CREATE);
+        this.activity = activity;
+        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         this.storageTokenHandler = storageTokenHandler;
         this.storageCredentialHandler = new KeyValueCredentialsStorage(activity, "key_storage_login", "key_storage_password");
     }
@@ -52,7 +55,8 @@ public class Client {
      */
     public Client(Activity activity, StorageCredentialsInterface storageCredentialHandler) {
         Intent intent = new Intent(activity, ZetaPushService.class);
-        activity.bindService(intent, onService, Context.BIND_AUTO_CREATE);
+        this.activity = activity;
+        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         this.storageTokenHandler = new KeyValueTokenStorage(activity, "key_storage_token");
         this.storageCredentialHandler = storageCredentialHandler;
     }
@@ -65,7 +69,8 @@ public class Client {
      */
     public Client(Activity activity, StorageTokenInterface storageTokenHandler, StorageCredentialsInterface storageCredentialHandler) {
         Intent intent = new Intent(activity, ZetaPushService.class);
-        activity.bindService(intent, onService, Context.BIND_AUTO_CREATE);
+        this.activity = activity;
+        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
         this.storageTokenHandler = storageTokenHandler;
         this.storageCredentialHandler = storageCredentialHandler;
     }
@@ -87,6 +92,13 @@ public class Client {
         zetaPushService.disconnection();
     }
 
+    /**
+     * Release the binded service
+     */
+    public void release(){
+        if (activity == null || mServiceConnection == null) return;
+        activity.unbindService(mServiceConnection);
+    }
     /**
      * Get the user key of an user
      * @return : User key as a string
@@ -159,7 +171,7 @@ public class Client {
     }
 
     // Service connection for the ZetaPushService
-    private ServiceConnection onService = new ServiceConnection() {
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {

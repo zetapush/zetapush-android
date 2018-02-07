@@ -1,1 +1,1 @@
-include ':app', ':zetapushlibrary'
+include ':app', ':android-library'
