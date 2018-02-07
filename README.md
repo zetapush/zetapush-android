@@ -1,3 +1,6 @@
+# ZetaPush Android library
+This library manage all the complex connection process for you. You will find utility classes to simplify the processe of connecting to ZetaPush and calling services and macros.
+
 # ZetaPush Android sample
 
 Example of Android project that uses ZetaPush Android SDK
@@ -10,41 +13,37 @@ First of all, [you have to create an account on ZetaPush](https://doc.zetapush.c
 
 ### Add ZetaPush Android SDK dependency
 
-Add ZetaPush Nexus repository (`'http://nexus.zpush.io:8080/repository/public/'`) to your main Gradle file (`build.gradle` at root of your Android project):
+Add ZetaPush Nexus repository (`'http://nexus.zpush.io:8080/repository/zetandroid/'`) to your main Gradle file (`build.gradle` at root of your Android project):
 
 ![build.gradle](https://user-images.githubusercontent.com/645363/28027104-4d585dca-6598-11e7-97b8-82a9e1c698bf.jpg)
 
-```groovy
+```gradle
 ...
 allprojects {
     repositories {
         jcenter()
         maven {
-            url "http://nexus.zpush.io:8080/repository/public/"
+            url "http://nexus.zpush.io:8080/repository/zetandroid/"
         }
     }
 }
 ...
 ```
 
-Then add the ZetaPush Android dependency `'com.zetapush:android-client:[2.6.7, )'` to the application gradle file (`app/build.gradle`):
+Then add the ZetaPush Android dependency `'compile com.zetapush:android-library:+'` to the application gradle file (`app/build.gradle`):
 
 ![app/build.gradle](https://user-images.githubusercontent.com/645363/28027256-c62b6a6c-6598-11e7-8245-2e0758b5eb23.jpg)
 
-```groovy
+```gradle
 ...
 
 dependencies {
     ...
     
-    compile 'com.zetapush:android-client:[2.6.7, )'
+    compile 'compile com.zetapush:android-library:+'
 }
 ...
 ```
-
-The dependency uses a version range (`[2.6.7, )`). It means that the minimum version of ZetaPush SDK is 2.6.7 and there is no maximum version.
-
-For a real project, it is better to fix the version (`2.6.7` instead of `[2.6.7, )`).
 
 
 ### Make it work with Android linter
@@ -57,7 +56,7 @@ To disable lint checking, add `lintOptions` section in android configuration (in
 
 ![app/build.gradle and app/lint.xml](https://user-images.githubusercontent.com/645363/28027103-4d576d66-6598-11e7-8162-9566b205342b.jpg)
 
-```groovy
+```gradle
 android {
     ...
 
@@ -86,23 +85,23 @@ Creates a file named `lint.xml` in `app` directory with the following content:
 To launch the connection to the ZetaPush platform, we need to have a **ZetaPush Client**. You need to create either a **WeakClient** or a **SmartClient**. The first one provides an anonymous authentication and the second one provides both an anonymous authentication and a simple authentication (we can choose during to connection).
 
 #### WeakClient
-
+```java
     WeakClient client = new WeakClient(MainActivity.this);
     client.connect(SANDBOX_ID);
     // or client.connect(SANDBOX_ID, DEPLOY_ID);
     // or client.connect(SANDBOX_ID, DEPLOY_ID, resource);
-
+```
 The `SANDBOX_ID` is the ID of your sandbox on the ZetaPush platform. Then, the `DEPLOY_ID` is the id of your authentication service, by default this is *weak_0*. The `resource` is a string to identify your application.
 
 #### SmartClient
-
+```java
     SmartClient client = new SmartClient(MainActivity.this);
     client.connect(SANDBOX_ID);
     // or client.connect(SANDBOX_ID, DEPLOY_ID);
     // or client.connect(SANDBOX_ID, LOGIN, PASSWORD);
     // or client.connect(SANDBOX_ID, LOGIN, PASSWORD, DEPLOY_ID);
     // or client.connect(SANDBOX_ID, LOGIN, PASSWORD, DEPLOY_ID, resource);
-
+```
 
 The variables are the same that the `WeakClient`. The `LOGIN` and the `PASSWORD` are the credentials for the user in his simple authentication. If you put credentials you will connect you as simple authentication, if not, as weak authentication.
 
@@ -117,7 +116,7 @@ The variables are the same that the `WeakClient`. The `LOGIN` and the `PASSWORD`
 To get the status connection, you need to create a BroadcastReceiver and listen on the differents events :
 
 
-
+```java
     private ZetaPushConnectionReceiver zetaPushReceiver = new ZetaPushConnectionReceiver();
 
 
@@ -151,7 +150,7 @@ To get the status connection, you need to create a BroadcastReceiver and listen 
             }
         }
     }
-
+```
 
 For example, here we only listen on the `ConnectionEstablished` and `ConnectionClosed` events. Here the list of connection events :
 
@@ -185,18 +184,18 @@ The name of your interfaces and classes are specifics to your project but you ha
 To properly understand how to call macroscripts, we need to define some variables. First when we use `"macro_0"`, this is the name of the macroscript service in your ZetaPush project. By default this is *macro_0*. The variable `client` is your `WeakClient` or `SmartClient` object.
 
 Then, the macroscript used to make our tests is named `welcome` :
-
+```java
     /**
     * Takes a message as input, and returns it, with a server message
     */
     macroscript welcome(/** message from the client */ string message = "Hello") {
         // ...
     } return {clientMessage : message, serverMessage : WELCOME_MESSAGE}
-
+```
 
 #### Synchrone API
 
-
+```java
     new Thread(new Runnable() {
         @Override
         public void run() {
@@ -207,13 +206,13 @@ Then, the macroscript used to make our tests is named `welcome` :
             }
         }
     }).start();
-
+```
 
 #### Asynchrone API
 
 In this case, you need to create a listener that implements the AsyncApiListener.
 
-
+```java
     private class MacroApiListener implements MacroAsyncApiListener {
 
         @Override
@@ -221,11 +220,11 @@ In this case, you need to create a listener that implements the AsyncApiListener
             Log.e("RESULT WELCOME", notification.getResult().toString());
         }
     }
-
+```
 
 Then we can call our macroscripts :
 
-
+```java
     new Thread(new Runnable() {
         @Override
         public void run() {
@@ -236,10 +235,10 @@ Then we can call our macroscripts :
             }
         }
     }).start();
-
+```
 
 #### Future API
-
+```java
     private Future<welcomeCompletion> resultMacro;
 
 
@@ -266,7 +265,7 @@ Then we can call our macroscripts :
     } catch (Exception e) {
         e.printStackTrace();
     }
-
+```
 
 ### Storage
 
@@ -287,12 +286,12 @@ You change this when you create your client. Here the signature of `WeakClient` 
 
 
 For example if you don't want to save any data, you can use the `NoTokenStorage` and `NoCredentialsStorage` classes that implement the needed interfaces :
-
+```java
     SmartClient client = new SmartClient(MainActivity.this, new NoTokenStorage(), new NoCredentialsStorage());
-
+```
 Of course you also can choose to implements yourself the methods to save, get and delete data. For example if you want to change the method to handle token :
 
-
+```java
     SmartClient client = new SmartClient(MainActivity.this, new StorageTokenInterface() {
         @Override
         public void saveToken(String token) {
@@ -309,7 +308,7 @@ Of course you also can choose to implements yourself the methods to save, get an
 
         }
     });
-
+```
 
 ### Secondary methods
 
@@ -343,7 +342,7 @@ The clients implements many other explicit methods. We list them :
 
 Here is a basic example with a button to launch the connection and another to call a macroscript. We use in our case the asynchrone API and a SmartClient.
 
-
+```java
     public class MainActivity extends Activity {
 
         private Button                          btnConnection;
@@ -449,5 +448,87 @@ Here is a basic example with a button to launch the connection and another to ca
             }
         }
     }
+```
 
+### How to share ZetaPush service between Activities
+
+We have created an utility class call ZetaPushBaseActivity than you can use to help you share the ZetaPush service between your activities. If you have your main activity that create the WeakClient or SmarClient object, you can share the ZetaPushService by simply overiding onServiceAttached and onServiceDetached event.
+
+If you have to create an API listener for your activity, don't forget to use a thread to instantiate it.
+
+
+```java
+public class ChildActivity extends ZetaPushBaseActivity implements ZetaPushConnectionEvent {
+
+    private ZetapushClient zetapushClient;
+    private String userId;
+    private static final String TAG = ChildActivity.class.getSimpleName();
+
+    @Override
+    protected void onServiceAttached(ZetaPushService service) {
+        // do something necessary by its subclass.
+        Log.d(TAG, "onServiceAttached");
+        zetapushClient = service.getZetaPushClient();
+        //userId = zetapushClient.getUserId();
+
+        new Thread() {
+            public void run() {
+                try {
+                    // Create here your futureAPI or API Listeners ?
+                    //futureApi = VisioFutureApi.Factory.createService(zetapushClient, "macro_0");
+                    //VisioAsyncApiListener.Factory.registerListener(ZetapushConnectActivity.this, zetapushClient, "macro_0");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
+    }
+
+    @Override
+    protected void onServiceDetached() {
+        Log.d(TAG, "onServiceDetached");
+        new Thread() {
+            public void run() {
+                try {
+                    // Unregister your API Listeners
+                    //VisioAsyncApiListener.Factory.unregisterListener(ZetapushConnectActivity.this, zetapushClient);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    @Override
+    public void successfulHandshake(Map<String, Object> map) {
+        Log.d(TAG, "successfulHandshake");
+    }
+
+    @Override
+    public void failedHandshake(Map<String, Object> map) {
+        Log.d(TAG, "failedHandshake");
+    }
+
+    @Override
+    public void connectionEstablished() {
+        Log.d(TAG, "connectionEstablished");
+    }
+
+    @Override
+    public void connectionBroken() {
+        Log.d(TAG, "connectionBroken");
+    }
+
+    @Override
+    public void connectionClosed() {
+        Log.d(TAG, "connectionClosed");
+    }
+
+    @Override
+    public void messageLost(String s, Object o) {
+
+    }
+}
+```
 
