@@ -269,26 +269,6 @@ Then we can call our macroscripts :
 
 ### Storage
 
-<<<<<<< HEAD
-### Authentication
-=======
-The Android SDK provides you the possibility to choose the method to save the credentials and the token used in simple authentication and weak authentication respectively.
-
-By default the informations are saved using the Key-Value method of the Android system. 
-You change this when you create your client. Here the signature of `WeakClient` and `SmartClient` constructors :
-
-    SmartClient(Activity);
-    SmartClient(Activity, StorageTokenInterface);
-    SmartClient(Activity, StorageCredentialsInterface);
-    SmartClient(Activity, StorageTokenInterface, StorageCredentialsInterface);
->>>>>>> high_level
-
-    WeakClient(Activity);
-    WeakClient(Activity, StorageTokenInterface);
-    WeakClient(Activity, StorageCredentialsInterface);
-    WeakClient(Activity, StorageTokenInterface, StorageCredentialsInterface);
-
-
 For example if you don't want to save any data, you can use the `NoTokenStorage` and `NoCredentialsStorage` classes that implement the needed interfaces :
 ```java
     SmartClient client = new SmartClient(MainActivity.this, new NoTokenStorage(), new NoCredentialsStorage());
