@@ -38,7 +38,7 @@ public class SmartClient extends Client {
      */
     public void connect(String businessId) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId_default_weak, resource_default);
+        super.getZetaPushService().connectionAsWeakAuthentication(businessId, deployId_default_weak, resource_default);
     }
 
     /**
@@ -48,7 +48,7 @@ public class SmartClient extends Client {
      */
     public void connect(String businessId, String deployId) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId, resource_default);
+        super.getZetaPushService().connectionAsWeakAuthentication(businessId, deployId, resource_default);
     }
 
 
@@ -60,7 +60,7 @@ public class SmartClient extends Client {
      */
     public void connect(String businessId, String login, String password) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsSimpleAuthentication(businessId, login, password, deployId_default_simple, resource_default);
+        super.getZetaPushService().connectionAsSimpleAuthentication(businessId, login, password, deployId_default_simple, resource_default);
     }
 
     /**
@@ -72,7 +72,7 @@ public class SmartClient extends Client {
      */
     public void connect(String businessId, String login, String password, String deployId) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsSimpleAuthentication(businessId, login, password, deployId, resource_default);
+        super.getZetaPushService().connectionAsSimpleAuthentication(businessId, login, password, deployId, resource_default);
     }
 
     /**
@@ -85,7 +85,7 @@ public class SmartClient extends Client {
      */
     public void connect(String businessId, String login, String password, String deployId, String resource) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsSimpleAuthentication(businessId, login, password, deployId, resource);
+        super.getZetaPushService().connectionAsSimpleAuthentication(businessId, login, password, deployId, resource);
     }
 
     /**
@@ -93,16 +93,16 @@ public class SmartClient extends Client {
      * @return : Map with key 'login' and 'password'
      */
     public Map<String, String> getCredentials() {
-        if (super.zetaPushService == null) return null;
-        return super.zetaPushService.getCredentials();
+        if (super.getZetaPushService() == null) return null;
+        return super.getZetaPushService().getCredentials();
     }
     /**
      * Check if the user has credentials
      * @return : true if he has credentials, false if not
      */
     public boolean hasCredentials() {
-        if (super.zetaPushService == null) return false;
-        Map<String, String> credentials = super.zetaPushService.getCredentials();
+        if (super.getZetaPushService() == null) return false;
+        Map<String, String> credentials = super.getZetaPushService().getCredentials();
 
         return (credentials.get("login") != null);
     }
@@ -113,7 +113,7 @@ public class SmartClient extends Client {
      * @return : true if strongly authenticated, false if not
      */
     public boolean isStronglyAuthenticated() {
-        if (super.zetaPushService == null) return false;
+        if (super.getZetaPushService() == null) return false;
         return (this.hasCredentials() && super.isConnected());
     }
 
@@ -123,7 +123,7 @@ public class SmartClient extends Client {
      * @return : true if weakly authenticated, false if not
      */
     public boolean isWeaklyAuthenticated() {
-        if (super.zetaPushService == null) return false;
+        if (super.getZetaPushService() == null) return false;
         return (!this.hasCredentials() && super.isConnected());
     }
 

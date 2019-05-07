@@ -35,7 +35,7 @@ public class WeakClient extends Client {
      */
     public void connect(String businessId) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId_default, resource_default);
+        super.getZetaPushService().connectionAsWeakAuthentication(businessId, deployId_default, resource_default);
     }
 
     /**
@@ -46,7 +46,7 @@ public class WeakClient extends Client {
      */
     public void connect(String businessId, String deployId) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId, resource_default);
+        super.getZetaPushService().connectionAsWeakAuthentication(businessId, deployId, resource_default);
     }
 
     /**
@@ -58,7 +58,7 @@ public class WeakClient extends Client {
      */
     public void connect(String businessId, String deployId, String resource) {
         if (!super.canDoConnection()) return;
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId, resource);
+        super.getZetaPushService().connectionAsWeakAuthentication(businessId, deployId, resource);
     }
 
     /**
@@ -67,7 +67,7 @@ public class WeakClient extends Client {
      * @return : Token as a string
      */
     public String getToken() {
-        if (super.zetaPushService == null) return null;
-        return super.zetaPushService.getToken();
+        if (super.getZetaPushService() == null) return null;
+        return super.getZetaPushService().getToken();
     }
 }
