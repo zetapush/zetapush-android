@@ -1,9 +1,18 @@
 package com.zetapush.library
 
 import android.content.Context
+import com.zetapush.client.ConnectionStatusListener
 import com.zetapush.client.highlevel.ZetapushClient
 
-open class Client {
+open class Client(
+    businessId: String,
+    simpleDeployId: String = Constants.weakDeployId,
+    weakDeployId: String = Constants.weakDeployId,
+    resource: String,
+    storageTokenHandler: StorageTokenInterface,
+    storageCredentialHandler: StorageCredentialsInterface,
+    options: Map<String, String>
+) {
 
     protected object Constants {
         const val resource = "android"
@@ -12,7 +21,9 @@ open class Client {
     }
 
     // Variables
-    protected val zetaPushService: ZetaPushService
+    protected val zetaPushService by lazy {
+        ZetaPushService(businessId, simpleDeployId, weakDeployId, resource, storageCredentialHandler, storageTokenHandler, options)
+    }
 
     /**
      * Return the ZetaPush client
@@ -64,26 +75,10 @@ open class Client {
         }
 
     /**
-     * Constructor for a ZetaPush Client : Define storage token handler
-     *
-     * @param storageTokenHandler
-     */
-    constructor(
-        businessId: String,
-        simpleDeployId: String = Constants.weakDeployId,
-        weakDeployId: String = Constants.weakDeployId,
-        resource: String,
-        storageTokenHandler: StorageTokenInterface,
-        storageCredentialHandler: StorageCredentialsInterface
-    ) {
-        this.zetaPushService = ZetaPushService(businessId, simpleDeployId, weakDeployId, resource, storageCredentialHandler, storageTokenHandler)
-    }
-
-    /**
      * Launch the disconnection to the ZetaPush platform
      */
-    fun disconnect() {
-        zetaPushService.disconnection()
+    fun disconnect(completion: (() -> Unit)? = null) {
+        zetaPushService.disconnection(completion)
     }
 
     /**
@@ -91,6 +86,10 @@ open class Client {
      */
     fun canDoConnection(): Boolean {
         return !zetaPushService.isConnected
+    }
+
+    fun addConnectionListener(listener: ConnectionStatusListener) {
+        zetaPushService.listener = listener
     }
 
     /**

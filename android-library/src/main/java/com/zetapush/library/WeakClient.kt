@@ -2,7 +2,21 @@ package com.zetapush.library
 
 import android.content.Context
 
-class WeakClient : Client {
+class WeakClient(
+    businessId: String,
+    deployId: String = Constants.weakDeployId,
+    resource: String = Constants.resource,
+    storageTokenHandler: StorageTokenInterface,
+    storageCredentialHandler: StorageCredentialsInterface,
+    options: Map<String, String> = HashMap()
+) : Client(
+    businessId = businessId,
+    weakDeployId = deployId,
+    resource = resource,
+    storageTokenHandler = storageTokenHandler,
+    storageCredentialHandler = storageCredentialHandler,
+    options = options
+) {
 
     /**
      * Get the token for the weak authentication
@@ -18,29 +32,16 @@ class WeakClient : Client {
         deployId: String = Constants.weakDeployId,
         resource: String = Constants.resource,
         storageTokenHandler: StorageTokenInterface = KeyValueTokenStorage(context, businessId, "key_storage_token"),
-        storageCredentialHandler: StorageCredentialsInterface = KeyValueCredentialsStorage(context, businessId, "key_storage_login", "key_storage_password")
-    ) : super(
-        businessId = businessId,
-        weakDeployId = deployId,
-        resource = resource,
-        storageTokenHandler = storageTokenHandler,
-        storageCredentialHandler = storageCredentialHandler
+        storageCredentialHandler: StorageCredentialsInterface = KeyValueCredentialsStorage(context, businessId, "key_storage_login", "key_storage_password"),
+        options: Map<String, String> = HashMap()
+    ) : this(
+        businessId,
+        deployId,
+        resource,
+        storageTokenHandler,
+        storageCredentialHandler,
+        options
     )
-
-    constructor(
-        businessId: String,
-        deployId: String = Constants.weakDeployId,
-        resource: String = Constants.resource,
-        storageTokenHandler: StorageTokenInterface,
-        storageCredentialHandler: StorageCredentialsInterface
-    ) : super(
-        businessId = businessId,
-        weakDeployId = deployId,
-        resource = resource,
-        storageTokenHandler = storageTokenHandler,
-        storageCredentialHandler = storageCredentialHandler
-    )
-
 
     /**
      * Basic Weak Authentication

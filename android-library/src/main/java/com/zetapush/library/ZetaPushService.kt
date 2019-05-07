@@ -13,8 +13,11 @@ class ZetaPushService(
     private val weakDeployId: String,
     private val resourceId: String,
     private var storageCredentialsHandler: StorageCredentialsInterface,
-    private var storageTokenHandler: StorageTokenInterface
+    private var storageTokenHandler: StorageTokenInterface,
+    private val options: Map<String, String>
 ) {
+
+    var listener: ConnectionStatusListener? = null
     /**
      * Return the ZetaPush client
      *
@@ -42,7 +45,7 @@ class ZetaPushService(
     /**
      * Get the credentials from the storage
      *
-     * @return : map with key : 'login' and 'password'
+     * @return : Credentials with key : 'login' and 'password'
      */
     val credentials: Credentials?
         get() = this.storageCredentialsHandler.credentials
@@ -56,14 +59,7 @@ class ZetaPushService(
         get() = zetaPushClient?.businessId
 
     /**
-     * Get the resource
-     *
-     * @return : Resource as string
-     */
-    /**
-     * Set the resource
-     *
-     * @param resource : new resource
+     * Set/Get the resource
      */
     var resource: String?
         get() = zetaPushClient?.resource
@@ -100,19 +96,18 @@ class ZetaPushService(
     /**
      * Create ZetaPush client and launch connection as Weak Authentication
      *
-     * @param businessId : Sandbox ID
      * @param login      : Login for authentication
      * @param password   : Password for authentication
-     * @param deployId   : Deploy ID for Authentication Service
-     * @param resource   : Resource
      */
     fun connectionAsSimpleAuthentication(login: String, password: String) {
         storageCredentialsHandler.saveCredentials(login, password)
         Thread(Runnable {
             Log.d("ZP", "connectionAsSimpleAuthentication")
             zetaPushClient = ZetapushClientFactory.create(
+                null, null,
                 businessId,
                 ZetapushAuthentFactory.createSimpleHandshake(login, password, simpleDeployId),
+                options,
                 resourceId
             )
             zetaPushClient?.addConnectionStatusListener(ZPConnectionListener())
@@ -122,10 +117,6 @@ class ZetaPushService(
 
     /**
      * Create ZetaPush client and launch connection as Simple Authentication
-     *
-     * @param businessId : Sandbox ID
-     * @param deployId   : Deploy ID for Authentication Service
-     * @param resource   : Resouce
      */
     fun connectionAsWeakAuthentication() {
 
@@ -135,8 +126,10 @@ class ZetaPushService(
             Log.d("ZP", "connectionAsWeakAuthentication")
 
             zetaPushClient = ZetapushClientFactory.create(
+                null, null,
                 businessId,
                 ZetapushAuthentFactory.createWeakHandshake(token, weakDeployId),
+                options,
                 resourceId
             )
             zetaPushClient?.addConnectionStatusListener(ZPConnectionListener())
@@ -147,7 +140,9 @@ class ZetaPushService(
     /**
      * Launch a disconnection to the ZetaPush
      */
-    fun disconnection() {
+    fun disconnection(completion: (() -> Unit)? = null) {
+
+        disconnectCompletion = completion
 
         storageCredentialsHandler.clearCredentials()
         storageTokenHandler.clearToken()
@@ -155,7 +150,7 @@ class ZetaPushService(
         Thread(Runnable { zetaPushClient?.stop() }).start()
     }
 
-
+    private var disconnectCompletion: (() -> Unit)? = null
     /**
      * Listener for the ZetaPush Connection
      */
@@ -165,30 +160,38 @@ class ZetaPushService(
 
             Log.d("ZP", "successfulHandshake -> map = $map")
             storageTokenHandler.saveToken(map["token"] as String?)
+            listener?.successfulHandshake(map)
         }
 
         override fun failedHandshake(s: String, zetaApiError: ZetaApiError) {
             Log.d("ZP", "failedHandshake -> message = $s, error = $zetaApiError")
             // TODO: Implementation to save map when failed handshake
+
+            listener?.failedHandshake(s, zetaApiError)
         }
 
         override fun connectionEstablished() {
             Log.d("ZP", "connectionEstablished")
             isConnected = true
+            listener?.connectionEstablished()
         }
 
         override fun connectionBroken() {
             Log.d("ZP", "connectionBroken")
             isConnected = false
+            listener?.connectionBroken()
         }
 
         override fun connectionClosed() {
             Log.d("ZP", "connectionClosed")
             isConnected = false
+            disconnectCompletion?.invoke()
+            listener?.connectionClosed()
         }
 
         override fun messageLost(s: String, o: Any) {
             Log.d("ZP", "messageLost -> message = $s, object = $o")
+            listener?.messageLost(s, o)
         }
     }
 }

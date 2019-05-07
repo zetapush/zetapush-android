@@ -2,7 +2,15 @@ package com.zetapush.library
 
 import android.content.Context
 
-class SmartClient : Client {
+class SmartClient(
+    businessId: String,
+    simpleDeployId: String = Constants.simpleDeployId,
+    weakDeployId: String = Constants.weakDeployId,
+    resource: String = Constants.resource,
+    storageTokenHandler: StorageTokenInterface,
+    storageCredentialHandler: StorageCredentialsInterface,
+    options: Map<String, String> = HashMap()
+) : Client(businessId, simpleDeployId, weakDeployId, resource, storageTokenHandler, storageCredentialHandler, options) {
 
     /**
      * Get credentials (login and password)
@@ -33,18 +41,9 @@ class SmartClient : Client {
         weakDeployId: String = Constants.weakDeployId,
         resource: String = Constants.resource,
         storageTokenHandler: StorageTokenInterface = KeyValueTokenStorage(context, businessId, "key_storage_token"),
-        storageCredentialHandler: StorageCredentialsInterface = KeyValueCredentialsStorage(context, businessId, "key_storage_login", "key_storage_password")
-    ) : super(businessId, simpleDeployId, weakDeployId, resource, storageTokenHandler, storageCredentialHandler)
-
-    constructor(
-        businessId: String,
-        simpleDeployId: String = Constants.simpleDeployId,
-        weakDeployId: String = Constants.weakDeployId,
-        resource: String = Constants.resource,
-        storageTokenHandler: StorageTokenInterface,
-        storageCredentialHandler: StorageCredentialsInterface
-    ) : super(businessId, simpleDeployId, weakDeployId, resource, storageTokenHandler, storageCredentialHandler)
-
+        storageCredentialHandler: StorageCredentialsInterface = KeyValueCredentialsStorage(context, businessId, "key_storage_login", "key_storage_password"),
+        options: Map<String, String> = HashMap()
+    ) : this(businessId, simpleDeployId, weakDeployId, resource, storageTokenHandler, storageCredentialHandler, options)
 
     /**
      * Basic Weak Authentication
@@ -58,7 +57,6 @@ class SmartClient : Client {
 
     /**
      * Basic Simple Authentication
-     * @param businessId : Sandbox ID
      * @param login : Login
      * @param password : Password
      */
