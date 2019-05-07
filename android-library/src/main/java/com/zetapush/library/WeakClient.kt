@@ -4,11 +4,6 @@ import android.content.Context
 
 class WeakClient : Client {
 
-    private object Constants {
-        const val resource = "android"
-        const val deployId = "weak_0"
-    }
-
     /**
      * Get the token for the weak authentication
      *
@@ -17,41 +12,41 @@ class WeakClient : Client {
     val token: String?
         get() = super.zetaPushService.token
 
-    constructor(context: Context) : super(context)
-    constructor(context: Context, storageTokenHandler: StorageTokenInterface) : super(context, storageTokenHandler)
-    constructor(context: Context, storageCredentialHandler: StorageCredentialsInterface) : super(context, storageCredentialHandler)
-    constructor(storageTokenHandler: StorageTokenInterface, storageCredentialHandler: StorageCredentialsInterface) : super(storageTokenHandler, storageCredentialHandler)
+    constructor(
+        context: Context,
+        businessId: String,
+        deployId: String = Constants.weakDeployId,
+        resource: String = Constants.resource,
+        storageTokenHandler: StorageTokenInterface = KeyValueTokenStorage(context, businessId, "key_storage_token"),
+        storageCredentialHandler: StorageCredentialsInterface = KeyValueCredentialsStorage(context, businessId, "key_storage_login", "key_storage_password")
+    ) : super(
+        businessId = businessId,
+        weakDeployId = deployId,
+        resource = resource,
+        storageTokenHandler = storageTokenHandler,
+        storageCredentialHandler = storageCredentialHandler
+    )
+
+    constructor(
+        businessId: String,
+        deployId: String = Constants.weakDeployId,
+        resource: String = Constants.resource,
+        storageTokenHandler: StorageTokenInterface,
+        storageCredentialHandler: StorageCredentialsInterface
+    ) : super(
+        businessId = businessId,
+        weakDeployId = deployId,
+        resource = resource,
+        storageTokenHandler = storageTokenHandler,
+        storageCredentialHandler = storageCredentialHandler
+    )
+
 
     /**
      * Basic Weak Authentication
-     *
-     * @param businessId : Sandbox ID
      */
-    fun connect(businessId: String) {
+    fun connect() {
         if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, Constants.deployId, Constants.resource)
-    }
-
-    /**
-     * Weak Authentication with deployment ID
-     *
-     * @param businessId : Sandbox ID
-     * @param deployId   : Value of the authentication service
-     */
-    fun connect(businessId: String, deployId: String) {
-        if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId, Constants.resource)
-    }
-
-    /**
-     * Weak Authentication with deployment ID and resource
-     *
-     * @param businessId : Sandbox ID
-     * @param deployId   : Value of the authentication service
-     * @param resource   : Resource
-     */
-    fun connect(businessId: String, deployId: String, resource: String) {
-        if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId, resource)
+        super.zetaPushService.connectionAsWeakAuthentication()
     }
 }

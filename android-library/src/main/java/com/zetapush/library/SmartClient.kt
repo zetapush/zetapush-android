@@ -4,12 +4,6 @@ import android.content.Context
 
 class SmartClient : Client {
 
-    private object Constants {
-        const val resource = "android"
-        const val simpleDeployId = "simple_0"
-        const val weakDeployId = "weak_0"
-    }
-
     /**
      * Get credentials (login and password)
      * @return : Map with key 'login' and 'password'
@@ -32,28 +26,34 @@ class SmartClient : Client {
         get() = !this.hasCredentials() && super.isConnected
 
     // Constructor
-    constructor(context: Context) : super(context)
-    constructor(context: Context, storageTokenHandler: StorageTokenInterface) : super(context, storageTokenHandler)
-    constructor(context: Context, storageCredentialHandler: StorageCredentialsInterface) : super(context, storageCredentialHandler)
-    constructor(storageTokenHandler: StorageTokenInterface, storageCredentialHandler: StorageCredentialsInterface) : super(storageTokenHandler, storageCredentialHandler)
+    constructor(
+        context: Context,
+        businessId: String,
+        simpleDeployId: String = Constants.simpleDeployId,
+        weakDeployId: String = Constants.weakDeployId,
+        resource: String = Constants.resource,
+        storageTokenHandler: StorageTokenInterface = KeyValueTokenStorage(context, businessId, "key_storage_token"),
+        storageCredentialHandler: StorageCredentialsInterface = KeyValueCredentialsStorage(context, businessId, "key_storage_login", "key_storage_password")
+    ) : super(businessId, simpleDeployId, weakDeployId, resource, storageTokenHandler, storageCredentialHandler)
+
+    constructor(
+        businessId: String,
+        simpleDeployId: String = Constants.simpleDeployId,
+        weakDeployId: String = Constants.weakDeployId,
+        resource: String = Constants.resource,
+        storageTokenHandler: StorageTokenInterface,
+        storageCredentialHandler: StorageCredentialsInterface
+    ) : super(businessId, simpleDeployId, weakDeployId, resource, storageTokenHandler, storageCredentialHandler)
+
 
     /**
      * Basic Weak Authentication
-     * @param businessId : Sandbox ID
      */
-    fun connect(businessId: String) {
+    fun connect() {
+        // TODO: we need to handle reconnection for simple authent without credentials if previously we store a token !
+        // TODO: maybe a fallback to a weak authent could be good for this case.
         if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, Constants.weakDeployId, Constants.resource)
-    }
-
-    /**
-     * Weak Authentication with deployment ID
-     * @param businessId : Sandbox ID
-     * @param deployId : Value of the authentication service
-     */
-    fun connect(businessId: String, deployId: String) {
-        if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsWeakAuthentication(businessId, deployId, Constants.resource)
+        super.zetaPushService.connectionAsWeakAuthentication()
     }
 
     /**
@@ -62,40 +62,9 @@ class SmartClient : Client {
      * @param login : Login
      * @param password : Password
      */
-    fun connect(businessId: String, login: String, password: String) {
+    fun connect(login: String, password: String) {
         if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsSimpleAuthentication(
-            businessId,
-            login,
-            password,
-            Constants.simpleDeployId,
-            Constants.resource
-        )
-    }
-
-    /**
-     * Simple Authentication with deploy ID
-     * @param businessId : Sandbox ID
-     * @param login : Login
-     * @param password : Password
-     * @param deployId : Authentication service
-     */
-    fun connect(businessId: String, login: String, password: String, deployId: String) {
-        if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsSimpleAuthentication(businessId, login, password, deployId, Constants.resource)
-    }
-
-    /**
-     * Simple Authentication with deploy ID and resouce
-     * @param businessId : Sandbox ID
-     * @param login : Login
-     * @param password : Password
-     * @param deployId : Authentication service
-     * @param resource : Resource
-     */
-    fun connect(businessId: String, login: String, password: String, deployId: String, resource: String) {
-        if (!super.canDoConnection()) return
-        super.zetaPushService.connectionAsSimpleAuthentication(businessId, login, password, deployId, resource)
+        super.zetaPushService.connectionAsSimpleAuthentication(login, password)
     }
 
     /**

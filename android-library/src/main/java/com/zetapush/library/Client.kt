@@ -5,8 +5,14 @@ import com.zetapush.client.highlevel.ZetapushClient
 
 open class Client {
 
+    protected object Constants {
+        const val resource = "android"
+        const val simpleDeployId = "simple_0"
+        const val weakDeployId = "weak_0"
+    }
+
     // Variables
-    protected var zetaPushService: ZetaPushService
+    protected val zetaPushService: ZetaPushService
 
     /**
      * Return the ZetaPush client
@@ -58,42 +64,19 @@ open class Client {
         }
 
     /**
-     * Constructor for a ZetaPush Client
-     */
-    constructor(context: Context) {
-        val storageTokenHandler = KeyValueTokenStorage(context, "key_storage_token")
-        val storageCredentialHandler = KeyValueCredentialsStorage(context, "key_storage_login", "key_storage_password")
-        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
-    }
-
-    /**
      * Constructor for a ZetaPush Client : Define storage token handler
      *
      * @param storageTokenHandler
      */
-    constructor(context: Context, storageTokenHandler: StorageTokenInterface) {
-        val storageCredentialHandler = KeyValueCredentialsStorage(context, "key_storage_login", "key_storage_password")
-        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
-    }
-
-    /**
-     * Constructor for a ZetaPush Client : Define storage credentials handler
-     *
-     * @param storageCredentialHandler
-     */
-    constructor(context: Context, storageCredentialHandler: StorageCredentialsInterface) {
-        val storageTokenHandler = KeyValueTokenStorage(context, "key_storage_token")
-        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
-    }
-
-    /**
-     * Constructor for a ZetaPush Client : Define storage token and credentials handlers
-     *
-     * @param storageTokenHandler
-     * @param storageCredentialHandler
-     */
-    constructor(storageTokenHandler: StorageTokenInterface, storageCredentialHandler: StorageCredentialsInterface) {
-        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
+    constructor(
+        businessId: String,
+        simpleDeployId: String = Constants.weakDeployId,
+        weakDeployId: String = Constants.weakDeployId,
+        resource: String,
+        storageTokenHandler: StorageTokenInterface,
+        storageCredentialHandler: StorageCredentialsInterface
+    ) {
+        this.zetaPushService = ZetaPushService(businessId, simpleDeployId, weakDeployId, resource, storageCredentialHandler, storageTokenHandler)
     }
 
     /**
