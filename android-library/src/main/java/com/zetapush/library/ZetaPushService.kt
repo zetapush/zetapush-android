@@ -29,9 +29,6 @@ class ZetaPushService(
     var isConnected = false
         private set
 
-//    private var storageCredentialsHandler: StorageCredentialsInterface? = null
-//    private var storageTokenHandler: StorageTokenInterface? = null
-
     /**
      * Get the token from the storage
      *

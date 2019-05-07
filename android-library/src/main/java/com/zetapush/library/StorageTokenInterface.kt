@@ -1,0 +1,29 @@
+package com.zetapush.library
+
+/**
+ * Created by damien on 20/07/17.
+ */
+
+interface StorageTokenInterface {
+
+    /**
+     * Get the token as a string
+     *
+     * @return : token
+     */
+    val token: String?
+
+    /**
+     * Save the token used for the Weak Authentication
+     *
+     * @param token : Token as a string
+     */
+    fun saveToken(token: String?)
+
+    /**
+     * Clear the saved token
+     */
+    fun clearToken()
+
+
+}

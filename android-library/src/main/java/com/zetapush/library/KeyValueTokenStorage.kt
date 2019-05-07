@@ -15,10 +15,11 @@ class KeyValueTokenStorage(
         editor.apply()
     }
 
-    override fun getToken(): String? {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return sharedPreferences.getString(keyToken, null)
-    }
+    override val token: String?
+        get() {
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+            return sharedPreferences.getString(keyToken, null)
+        }
 
     override fun clearToken() {
         this.saveToken(null)
