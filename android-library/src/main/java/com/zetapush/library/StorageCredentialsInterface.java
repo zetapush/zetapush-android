@@ -10,6 +10,7 @@ public interface StorageCredentialsInterface {
 
     /**
      * Save the credentials used for the simple authentication
+     *
      * @param login
      * @param password
      */
@@ -17,6 +18,7 @@ public interface StorageCredentialsInterface {
 
     /**
      * Get the credentials as a map with key 'login' and 'password'
+     *
      * @return
      */
     Map<String, String> getCredentials();

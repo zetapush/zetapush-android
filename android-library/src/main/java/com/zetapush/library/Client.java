@@ -1,13 +1,7 @@
 package com.zetapush.library;
 
-import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.util.Log;
-
+import androidx.annotation.NonNull;
 import com.zetapush.client.highlevel.ZetapushClient;
 
 /**
@@ -18,65 +12,57 @@ public class Client {
 
     // Variables
     protected ZetaPushService zetaPushService = null;
-    private StorageTokenInterface storageTokenHandler = null;
-    private StorageCredentialsInterface storageCredentialHandler = null;
-    private Activity activity;
 
     /**
      * Constructor for a ZetaPush Client
-     * @param activity : Activity
      */
-    public Client(Activity activity) {
-        Intent intent = new Intent(activity, ZetaPushService.class);
-        this.activity = activity;
-        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        this.storageTokenHandler = new KeyValueTokenStorage(activity, "key_storage_token");
-        this.storageCredentialHandler = new KeyValueCredentialsStorage(activity, "key_storage_login", "key_storage_password");
+    public Client(@NonNull Context context) {
+        this.zetaPushService = new ZetaPushService();
+        final KeyValueTokenStorage storageTokenHandler = new KeyValueTokenStorage(context, "key_storage_token");
+        final KeyValueCredentialsStorage storageCredentialHandler = new KeyValueCredentialsStorage(context, "key_storage_login", "key_storage_password");
+        setStorageTokenHandler(storageTokenHandler);
+        setStorageCredentialsHandler(storageCredentialHandler);
     }
-
 
     /**
      * Constructor for a ZetaPush Client : Define storage token handler
-     * @param activity
+     *
      * @param storageTokenHandler
      */
-    public Client(Activity activity, StorageTokenInterface storageTokenHandler) {
-        Intent intent = new Intent(activity, ZetaPushService.class);
-        this.activity = activity;
-        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        this.storageTokenHandler = storageTokenHandler;
-        this.storageCredentialHandler = new KeyValueCredentialsStorage(activity, "key_storage_login", "key_storage_password");
+    public Client(@NonNull Context context, StorageTokenInterface storageTokenHandler) {
+        this.zetaPushService = new ZetaPushService();
+        final KeyValueCredentialsStorage storageCredentialHandler = new KeyValueCredentialsStorage(context, "key_storage_login", "key_storage_password");
+        setStorageTokenHandler(storageTokenHandler);
+        setStorageCredentialsHandler(storageCredentialHandler);
     }
 
     /**
      * Constructor for a ZetaPush Client : Define storage credentials handler
-     * @param activity
+     *
      * @param storageCredentialHandler
      */
-    public Client(Activity activity, StorageCredentialsInterface storageCredentialHandler) {
-        Intent intent = new Intent(activity, ZetaPushService.class);
-        this.activity = activity;
-        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        this.storageTokenHandler = new KeyValueTokenStorage(activity, "key_storage_token");
-        this.storageCredentialHandler = storageCredentialHandler;
+    public Client(@NonNull Context context, StorageCredentialsInterface storageCredentialHandler) {
+        this.zetaPushService = new ZetaPushService();
+        final KeyValueTokenStorage storageTokenHandler = new KeyValueTokenStorage(context, "key_storage_token");
+        setStorageTokenHandler(storageTokenHandler);
+        setStorageCredentialsHandler(storageCredentialHandler);
     }
 
     /**
      * Constructor for a ZetaPush Client : Define storage token and credentials handlers
-     * @param activity
+     *
      * @param storageTokenHandler
      * @param storageCredentialHandler
      */
-    public Client(Activity activity, StorageTokenInterface storageTokenHandler, StorageCredentialsInterface storageCredentialHandler) {
-        Intent intent = new Intent(activity, ZetaPushService.class);
-        this.activity = activity;
-        activity.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        this.storageTokenHandler = storageTokenHandler;
-        this.storageCredentialHandler = storageCredentialHandler;
+    public Client(StorageTokenInterface storageTokenHandler, StorageCredentialsInterface storageCredentialHandler) {
+        this.zetaPushService = new ZetaPushService();
+        setStorageTokenHandler(storageTokenHandler);
+        setStorageCredentialsHandler(storageCredentialHandler);
     }
 
     /**
      * Return the ZetaPush client
+     *
      * @return
      */
     public ZetapushClient getZetaPushClient() {
@@ -93,14 +79,8 @@ public class Client {
     }
 
     /**
-     * Release the binded service
-     */
-    public void release(){
-        if (activity == null || mServiceConnection == null) return;
-        activity.unbindService(mServiceConnection);
-    }
-    /**
      * Get the user key of an user
+     *
      * @return : User key as a string
      */
     public String getUserKey() {
@@ -118,6 +98,7 @@ public class Client {
 
     /**
      * Check if the user is connected to the ZetaPush platform
+     *
      * @return : true if connected, false if not
      */
     public boolean isConnected() {
@@ -127,6 +108,7 @@ public class Client {
 
     /**
      * Get the Sandbox ID
+     *
      * @return : sandbox id as string
      */
     public String getSandboxId() {
@@ -136,6 +118,7 @@ public class Client {
 
     /**
      * Get the resource
+     *
      * @return : Resource as string
      */
     public String getResource() {
@@ -145,6 +128,7 @@ public class Client {
 
     /**
      * Set the resource
+     *
      * @param resource : new resource
      */
     public void setResource(String resource) {
@@ -154,6 +138,7 @@ public class Client {
 
     /**
      * Set the storage handler for the token
+     *
      * @param storageTokenHandler : Class which implements the interface
      */
     private void setStorageTokenHandler(StorageTokenInterface storageTokenHandler) {
@@ -163,28 +148,11 @@ public class Client {
 
     /**
      * Set the storage handler for the credentials
+     *
      * @param storageCredentialsHandler : Class which implements the interface
      */
     private void setStorageCredentialsHandler(StorageCredentialsInterface storageCredentialsHandler) {
         if (zetaPushService == null) return;
         zetaPushService.setCredentialsStorageHandler(storageCredentialsHandler);
     }
-
-    // Service connection for the ZetaPushService
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.d("ServiceConnection", "onServiceConnected");
-            zetaPushService = ((ZetaPushService.ZetaPushBinder) service).getService();
-            setStorageTokenHandler(storageTokenHandler);
-            setStorageCredentialsHandler(storageCredentialHandler);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d("ServiceConnection", "onServiceDisconnected");
-            zetaPushService = null;
-        }
-    };
 }

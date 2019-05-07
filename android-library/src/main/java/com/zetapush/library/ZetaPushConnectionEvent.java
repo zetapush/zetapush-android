@@ -8,7 +8,6 @@ import java.util.Map;
 
 /**
  * Callback interface for ZetaPush connection.
- *
  */
 public interface ZetaPushConnectionEvent {
 
