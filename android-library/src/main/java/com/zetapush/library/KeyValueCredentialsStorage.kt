@@ -4,16 +4,12 @@ import android.content.Context
 import android.preference.PreferenceManager
 import java.util.*
 
-/**
- * Created by damien on 20/07/17.
- */
-
 class KeyValueCredentialsStorage(
     private val context: Context,
     private val keyLogin: String,
     private val keyPassword: String
 ) : StorageCredentialsInterface {
-    
+
     override fun saveCredentials(login: String?, password: String?) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = sharedPreferences.edit()

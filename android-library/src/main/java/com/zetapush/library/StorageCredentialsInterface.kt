@@ -1,9 +1,5 @@
 package com.zetapush.library
 
-/**
- * Created by damien on 20/07/17.
- */
-
 interface StorageCredentialsInterface {
 
     /**

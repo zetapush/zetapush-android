@@ -2,10 +2,6 @@ package com.zetapush.library
 
 import android.content.Context
 
-/**
- * Created by damien on 19/07/17.
- */
-
 class WeakClient : Client {
 
     private object Constants {

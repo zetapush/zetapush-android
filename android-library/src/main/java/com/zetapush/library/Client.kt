@@ -3,10 +3,6 @@ package com.zetapush.library
 import android.content.Context
 import com.zetapush.client.highlevel.ZetapushClient
 
-/**
- * Created by damien on 19/07/17.
- */
-
 open class Client {
 
     // Variables

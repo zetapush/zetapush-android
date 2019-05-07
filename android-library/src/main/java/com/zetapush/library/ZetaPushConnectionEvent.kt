@@ -1,10 +1,6 @@
 package com.zetapush.library
 
 /**
- * Created by mikaelmorvan on 06/02/2018.
- */
-
-/**
  * Callback interface for ZetaPush connection.
  */
 interface ZetaPushConnectionEvent {
