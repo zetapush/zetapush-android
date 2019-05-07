@@ -17,7 +17,7 @@ open class Client {
      *
      * @return
      */
-    val zetaPushClient: ZetapushClient
+    val zetaPushClient: ZetapushClient?
         get() = zetaPushService.zetaPushClient
 
     /**
@@ -65,11 +65,9 @@ open class Client {
      * Constructor for a ZetaPush Client
      */
     constructor(context: Context) {
-        this.zetaPushService = ZetaPushService()
         val storageTokenHandler = KeyValueTokenStorage(context, "key_storage_token")
         val storageCredentialHandler = KeyValueCredentialsStorage(context, "key_storage_login", "key_storage_password")
-        setStorageTokenHandler(storageTokenHandler)
-        setStorageCredentialsHandler(storageCredentialHandler)
+        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
     }
 
     /**
@@ -78,10 +76,8 @@ open class Client {
      * @param storageTokenHandler
      */
     constructor(context: Context, storageTokenHandler: StorageTokenInterface) {
-        this.zetaPushService = ZetaPushService()
         val storageCredentialHandler = KeyValueCredentialsStorage(context, "key_storage_login", "key_storage_password")
-        setStorageTokenHandler(storageTokenHandler)
-        setStorageCredentialsHandler(storageCredentialHandler)
+        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
     }
 
     /**
@@ -90,10 +86,8 @@ open class Client {
      * @param storageCredentialHandler
      */
     constructor(context: Context, storageCredentialHandler: StorageCredentialsInterface) {
-        this.zetaPushService = ZetaPushService()
         val storageTokenHandler = KeyValueTokenStorage(context, "key_storage_token")
-        setStorageTokenHandler(storageTokenHandler)
-        setStorageCredentialsHandler(storageCredentialHandler)
+        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
     }
 
     /**
@@ -103,11 +97,8 @@ open class Client {
      * @param storageCredentialHandler
      */
     constructor(storageTokenHandler: StorageTokenInterface, storageCredentialHandler: StorageCredentialsInterface) {
-        this.zetaPushService = ZetaPushService()
-        setStorageTokenHandler(storageTokenHandler)
-        setStorageCredentialsHandler(storageCredentialHandler)
+        this.zetaPushService = ZetaPushService(storageCredentialHandler, storageTokenHandler)
     }
-
 
     /**
      * Launch the disconnection to the ZetaPush platform

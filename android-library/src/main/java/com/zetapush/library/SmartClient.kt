@@ -107,7 +107,6 @@ class SmartClient : Client {
      * @return : true if he has credentials, false if not
      */
     fun hasCredentials(): Boolean {
-        val credentials = super.zetaPushService.credentials
-        return credentials["login"] != null
+        return zetaPushService.credentials?.get("login") != null
     }
 }
