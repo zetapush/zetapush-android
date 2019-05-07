@@ -1,5 +1,7 @@
 package com.zetapush.library
 
+data class Credentials(val login: String? = null, val password: String? = null)
+
 interface StorageCredentialsInterface {
 
     /**
@@ -7,7 +9,7 @@ interface StorageCredentialsInterface {
      *
      * @return
      */
-    val credentials: Map<String, String>?
+    val credentials: Credentials?
 
     /**
      * Save the credentials used for the simple authentication

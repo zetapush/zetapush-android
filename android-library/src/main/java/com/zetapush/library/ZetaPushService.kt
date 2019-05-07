@@ -42,7 +42,7 @@ class ZetaPushService(
      *
      * @return : map with key : 'login' and 'password'
      */
-    val credentials: Map<String, String>?
+    val credentials: Credentials?
         get() = this.storageCredentialsHandler.credentials
 
     /**

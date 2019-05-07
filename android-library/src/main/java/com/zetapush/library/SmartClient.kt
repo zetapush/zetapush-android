@@ -14,7 +14,7 @@ class SmartClient : Client {
      * Get credentials (login and password)
      * @return : Map with key 'login' and 'password'
      */
-    val credentials: Map<String, String>?
+    val credentials: Credentials?
         get() = zetaPushService.credentials
 
     /**
@@ -103,6 +103,6 @@ class SmartClient : Client {
      * @return : true if he has credentials, false if not
      */
     fun hasCredentials(): Boolean {
-        return zetaPushService.credentials?.get("login") != null
+        return zetaPushService.credentials?.login != null
     }
 }

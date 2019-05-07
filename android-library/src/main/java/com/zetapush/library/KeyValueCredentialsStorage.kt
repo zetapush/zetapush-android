@@ -18,20 +18,13 @@ class KeyValueCredentialsStorage(
         editor.apply()
     }
 
-    override val credentials: Map<String, String>
+    override val credentials: Credentials?
         get() {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val login = sharedPreferences.getString(keyLogin, null)
             val password = sharedPreferences.getString(keyPassword, null)
 
-            val credentials = HashMap<String, String>()
-            login?.let { login ->
-                credentials["login"] = login
-            }
-            password?.let { password ->
-                credentials["password"] = password
-            }
-            return credentials
+            return Credentials(login, password)
         }
 
     override fun clearCredentials() {

@@ -5,7 +5,7 @@ class NoCredentialsStorage : StorageCredentialsInterface {
         // Do nothing
     }
 
-    override val credentials: Map<String, String>?
+    override val credentials: Credentials?
         get() = null
 
     override fun clearCredentials() {
