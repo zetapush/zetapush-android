@@ -8,11 +8,13 @@ import com.zetapush.client.highlevel.factories.ZetapushClientFactory
 import com.zetapush.common.messages.ZetaApiError
 
 class ZetaPushService(
+    private val businessId: String,
+    private val simpleDeployId: String,
+    private val weakDeployId: String,
+    private val resourceId: String,
     private var storageCredentialsHandler: StorageCredentialsInterface,
     private var storageTokenHandler: StorageTokenInterface
 ) {
-
-    //    private final Binder binder = new ZetaPushBinder();
     /**
      * Return the ZetaPush client
      *
@@ -95,7 +97,6 @@ class ZetaPushService(
         this.storageTokenHandler = storageTokenHandler
     }
 
-
     /**
      * Create ZetaPush client and launch connection as Weak Authentication
      *
@@ -105,20 +106,14 @@ class ZetaPushService(
      * @param deployId   : Deploy ID for Authentication Service
      * @param resource   : Resource
      */
-    fun connectionAsSimpleAuthentication(
-        businessId: String,
-        login: String,
-        password: String,
-        deployId: String,
-        resource: String
-    ) {
+    fun connectionAsSimpleAuthentication(login: String, password: String) {
         storageCredentialsHandler.saveCredentials(login, password)
         Thread(Runnable {
             Log.d("ZP", "connectionAsSimpleAuthentication")
             zetaPushClient = ZetapushClientFactory.create(
                 businessId,
-                ZetapushAuthentFactory.createSimpleHandshake(login, password, deployId),
-                resource
+                ZetapushAuthentFactory.createSimpleHandshake(login, password, simpleDeployId),
+                resourceId
             )
             zetaPushClient?.addConnectionStatusListener(ZPConnectionListener())
             zetaPushClient?.start()
@@ -132,7 +127,7 @@ class ZetaPushService(
      * @param deployId   : Deploy ID for Authentication Service
      * @param resource   : Resouce
      */
-    fun connectionAsWeakAuthentication(businessId: String, deployId: String, resource: String) {
+    fun connectionAsWeakAuthentication() {
 
         val token = storageTokenHandler.token
 
@@ -141,8 +136,8 @@ class ZetaPushService(
 
             zetaPushClient = ZetapushClientFactory.create(
                 businessId,
-                ZetapushAuthentFactory.createWeakHandshake(token, deployId),
-                resource
+                ZetapushAuthentFactory.createWeakHandshake(token, weakDeployId),
+                resourceId
             )
             zetaPushClient?.addConnectionStatusListener(ZPConnectionListener())
             zetaPushClient?.start()
