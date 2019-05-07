@@ -8,12 +8,14 @@ public interface StorageTokenInterface {
 
     /**
      * Save the token used for the Weak Authentication
+     *
      * @param token : Token as a string
      */
     void saveToken(String token);
 
     /**
      * Get the token as a string
+     *
      * @return : token
      */
     String getToken();

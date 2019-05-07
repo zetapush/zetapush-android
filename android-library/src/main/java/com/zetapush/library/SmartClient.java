@@ -1,6 +1,6 @@
 package com.zetapush.library;
 
-import android.app.Activity;
+import android.content.Context;
 
 import java.util.Map;
 
@@ -15,20 +15,20 @@ public class SmartClient extends Client {
     private String deployId_default_weak = "weak_0";
 
     // Constructor
-    public SmartClient(Activity activity) {
-        super(activity);
+    public SmartClient(Context context) {
+        super(context);
     }
 
-    public SmartClient(Activity activity, StorageTokenInterface storageTokenHandler) {
-        super(activity, storageTokenHandler);
+    public SmartClient(Context context, StorageTokenInterface storageTokenHandler) {
+        super(context, storageTokenHandler);
     }
 
-    public SmartClient(Activity activity, StorageCredentialsInterface storageCredentialHandler) {
-        super(activity, storageCredentialHandler);
+    public SmartClient(Context context, StorageCredentialsInterface storageCredentialHandler) {
+        super(context, storageCredentialHandler);
     }
 
-    public SmartClient(Activity activity, StorageTokenInterface storageTokenHandler, StorageCredentialsInterface storageCredentialHandler) {
-        super(activity, storageTokenHandler, storageCredentialHandler);
+    public SmartClient(StorageTokenInterface storageTokenHandler, StorageCredentialsInterface storageCredentialHandler) {
+        super(storageTokenHandler, storageCredentialHandler);
     }
 
 
