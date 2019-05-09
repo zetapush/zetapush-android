@@ -1,10 +1,9 @@
 package com.zetapush.library
 
-import android.content.Context
 import com.zetapush.client.ConnectionStatusListener
 import com.zetapush.client.highlevel.ZetapushClient
 
-open class Client(
+abstract class Client(
     businessId: String,
     simpleDeployId: String = Constants.weakDeployId,
     weakDeployId: String = Constants.weakDeployId,

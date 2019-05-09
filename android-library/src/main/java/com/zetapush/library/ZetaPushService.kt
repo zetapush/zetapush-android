@@ -15,7 +15,9 @@ class ZetaPushService(
     private var storageCredentialsHandler: StorageCredentialsInterface,
     private var storageTokenHandler: StorageTokenInterface,
     private val options: Map<String, String>
-) {
+) : ConnectionStatusListener {
+
+    private var disconnectCompletion: (() -> Unit)? = null
 
     var listener: ConnectionStatusListener? = null
     /**
@@ -110,7 +112,7 @@ class ZetaPushService(
                 options,
                 resourceId
             )
-            zetaPushClient?.addConnectionStatusListener(ZPConnectionListener())
+            zetaPushClient?.addConnectionStatusListener(this)
             zetaPushClient?.start()
         }).start()
     }
@@ -132,7 +134,7 @@ class ZetaPushService(
                 options,
                 resourceId
             )
-            zetaPushClient?.addConnectionStatusListener(ZPConnectionListener())
+            zetaPushClient?.addConnectionStatusListener(this)
             zetaPushClient?.start()
         }).start()
     }
@@ -150,48 +152,41 @@ class ZetaPushService(
         Thread(Runnable { zetaPushClient?.stop() }).start()
     }
 
-    private var disconnectCompletion: (() -> Unit)? = null
-    /**
-     * Listener for the ZetaPush Connection
-     */
-    private inner class ZPConnectionListener : ConnectionStatusListener {
+    override fun successfulHandshake(map: Map<String, Any>) {
 
-        override fun successfulHandshake(map: Map<String, Any>) {
+        Log.d("ZP", "successfulHandshake -> map = $map")
+        storageTokenHandler.saveToken(map["token"] as String?)
+        listener?.successfulHandshake(map)
+    }
 
-            Log.d("ZP", "successfulHandshake -> map = $map")
-            storageTokenHandler.saveToken(map["token"] as String?)
-            listener?.successfulHandshake(map)
-        }
+    override fun failedHandshake(s: String, zetaApiError: ZetaApiError) {
+        Log.d("ZP", "failedHandshake -> message = $s, error = $zetaApiError")
+        // TODO: Implementation to save map when failed handshake
 
-        override fun failedHandshake(s: String, zetaApiError: ZetaApiError) {
-            Log.d("ZP", "failedHandshake -> message = $s, error = $zetaApiError")
-            // TODO: Implementation to save map when failed handshake
+        listener?.failedHandshake(s, zetaApiError)
+    }
 
-            listener?.failedHandshake(s, zetaApiError)
-        }
+    override fun connectionEstablished() {
+        Log.d("ZP", "connectionEstablished")
+        isConnected = true
+        listener?.connectionEstablished()
+    }
 
-        override fun connectionEstablished() {
-            Log.d("ZP", "connectionEstablished")
-            isConnected = true
-            listener?.connectionEstablished()
-        }
+    override fun connectionBroken() {
+        Log.d("ZP", "connectionBroken")
+        isConnected = false
+        listener?.connectionBroken()
+    }
 
-        override fun connectionBroken() {
-            Log.d("ZP", "connectionBroken")
-            isConnected = false
-            listener?.connectionBroken()
-        }
+    override fun connectionClosed() {
+        Log.d("ZP", "connectionClosed")
+        isConnected = false
+        disconnectCompletion?.invoke()
+        listener?.connectionClosed()
+    }
 
-        override fun connectionClosed() {
-            Log.d("ZP", "connectionClosed")
-            isConnected = false
-            disconnectCompletion?.invoke()
-            listener?.connectionClosed()
-        }
-
-        override fun messageLost(s: String, o: Any) {
-            Log.d("ZP", "messageLost -> message = $s, object = $o")
-            listener?.messageLost(s, o)
-        }
+    override fun messageLost(s: String, o: Any) {
+        Log.d("ZP", "messageLost -> message = $s, object = $o")
+        listener?.messageLost(s, o)
     }
 }
