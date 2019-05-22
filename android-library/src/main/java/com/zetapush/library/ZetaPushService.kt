@@ -103,7 +103,7 @@ class ZetaPushService(
      */
     fun connectionAsSimpleAuthentication(login: String, password: String) {
         storageCredentialsHandler.saveCredentials(login, password)
-        Thread(Runnable {
+//        Thread(Runnable { // FIXME : avoid using this here
             Log.d("ZP", "connectionAsSimpleAuthentication")
             zetaPushClient = ZetapushClientFactory.create(
                 null, null,
@@ -114,7 +114,7 @@ class ZetaPushService(
             )
             zetaPushClient?.addConnectionStatusListener(this)
             zetaPushClient?.start()
-        }).start()
+//        }).start()
     }
 
     /**
@@ -124,7 +124,7 @@ class ZetaPushService(
 
         val token = storageTokenHandler.token
 
-        Thread(Runnable {
+//        Thread(Runnable { // FIXME : avoid using this here
             Log.d("ZP", "connectionAsWeakAuthentication")
 
             zetaPushClient = ZetapushClientFactory.create(
@@ -136,7 +136,9 @@ class ZetaPushService(
             )
             zetaPushClient?.addConnectionStatusListener(this)
             zetaPushClient?.start()
-        }).start()
+//        }).start()
+
+        zetaPushClient?.handshake(ZetapushAuthentFactory.createWeakHandshake(token, weakDeployId))
     }
 
     /**
@@ -149,7 +151,9 @@ class ZetaPushService(
         storageCredentialsHandler.clearCredentials()
         storageTokenHandler.clearToken()
 
-        Thread(Runnable { zetaPushClient?.stop() }).start()
+//        Thread(Runnable { // FIXME : avoid using this here
+            zetaPushClient?.stop()
+//        }).start()
     }
 
     override fun successfulHandshake(map: Map<String, Any>) {
