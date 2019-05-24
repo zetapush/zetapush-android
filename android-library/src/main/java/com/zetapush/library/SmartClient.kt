@@ -1,6 +1,7 @@
 package com.zetapush.library
 
 import android.content.Context
+import android.util.Log
 
 class SmartClient(
     businessId: String,
@@ -51,6 +52,7 @@ class SmartClient(
     fun connect() {
         // TODO: we need to handle reconnection for simple authent without credentials if previously we store a token !
         // TODO: maybe a fallback to a weak authent could be good for this case.
+        Log.v("SmartClient", "-> ${super.canDoConnection()}")
         if (!super.canDoConnection()) return
         super.zetaPushService.connectionAsWeakAuthentication()
     }
@@ -61,6 +63,7 @@ class SmartClient(
      * @param password : Password
      */
     fun connect(login: String, password: String) {
+        Log.v("SmartClient", "-> ${super.canDoConnection()}")
         if (!super.canDoConnection()) return
         super.zetaPushService.connectionAsSimpleAuthentication(login, password)
     }
