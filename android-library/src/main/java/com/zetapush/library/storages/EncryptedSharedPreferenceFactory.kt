@@ -13,7 +13,7 @@ object EncryptedSharedPreferenceFactory {
 
         return EncryptedSharedPreferences.create(
             context,
-            "fileName",
+            fileName,
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
