@@ -1,7 +1,10 @@
-package com.zetapush.library
+package com.zetapush.library.clients
 
 import com.zetapush.client.ConnectionStatusListener
 import com.zetapush.client.highlevel.ZetapushClient
+import com.zetapush.library.storages.credentials.StorageCredentialsInterface
+import com.zetapush.library.storages.token.StorageTokenInterface
+import com.zetapush.library.ZetaPushService
 
 abstract class Client(
     businessId: String,
@@ -72,6 +75,14 @@ abstract class Client(
         set(resource) {
             zetaPushService.resource = resource
         }
+
+    /**
+     * Migrate tokens to a secured storage if needed. Remove this method after 01/01/2022
+     */
+    @Deprecated(message = "Remove this method after 01/01/2022")
+    fun migrateTokensAndCredentialsToSecuredStorageIfNeeded() {
+        zetaPushService.migrateTokensAndCredentialsToSecuredStorageIfNeeded()
+    }
 
     /**
      * Launch the disconnection to the ZetaPush platform

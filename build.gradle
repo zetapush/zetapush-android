@@ -21,7 +21,11 @@ allprojects {
         mavenLocal()
         jcenter()
         maven {
-            url "http://nexus.zpush.io:8080/repository/public/"
+            url 'http://nexus.insurly.tech/repository/maven-public/'
+            credentials {
+                username NEXUS_USERNAME
+                password NEXUS_PASSWORD
+            }
         }
         google()
     }

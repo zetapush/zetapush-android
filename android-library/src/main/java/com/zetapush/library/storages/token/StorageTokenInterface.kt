@@ -1,4 +1,4 @@
-package com.zetapush.library
+package com.zetapush.library.storages.token
 
 interface StorageTokenInterface {
 
@@ -21,5 +21,9 @@ interface StorageTokenInterface {
      */
     fun clearToken()
 
-
+    /**
+    * Migrate tokens to a secured storage if needed. Remove this method after 01/01/2022
+    */
+    @Deprecated(message = "Remove this method after 01/01/2022")
+    fun migrateToSecuredStorageIfNeeded()
 }

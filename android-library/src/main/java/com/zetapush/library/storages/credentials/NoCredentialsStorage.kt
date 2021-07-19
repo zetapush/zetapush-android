@@ -1,4 +1,4 @@
-package com.zetapush.library
+package com.zetapush.library.storages.credentials
 
 class NoCredentialsStorage : StorageCredentialsInterface {
     override fun saveCredentials(login: String?, password: String?) {
@@ -9,6 +9,10 @@ class NoCredentialsStorage : StorageCredentialsInterface {
         get() = null
 
     override fun clearCredentials() {
+        // Do nothing
+    }
+
+    override fun migrateToSecuredStorageIfNeeded() {
         // Do nothing
     }
 }

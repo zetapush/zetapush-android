@@ -6,6 +6,9 @@ import com.zetapush.client.highlevel.ZetapushClient
 import com.zetapush.client.highlevel.factories.ZetapushAuthentFactory
 import com.zetapush.client.highlevel.factories.ZetapushClientFactory
 import com.zetapush.common.messages.ZetaApiError
+import com.zetapush.library.storages.credentials.Credentials
+import com.zetapush.library.storages.credentials.StorageCredentialsInterface
+import com.zetapush.library.storages.token.StorageTokenInterface
 
 class ZetaPushService(
     private val businessId: String,
@@ -77,6 +80,14 @@ class ZetaPushService(
     val userKey: String?
         get() = zetaPushClient?.userId
 
+    /**
+     * Migrate tokens to a secured storage if needed. Remove this method after 01/01/2022
+     */
+    @Deprecated(message = "Remove this method after 01/01/2022")
+    fun migrateTokensAndCredentialsToSecuredStorageIfNeeded() {
+        storageCredentialsHandler.migrateToSecuredStorageIfNeeded()
+        storageTokenHandler.migrateToSecuredStorageIfNeeded()
+    }
     /**
      * Set the handler to store credentials
      *
