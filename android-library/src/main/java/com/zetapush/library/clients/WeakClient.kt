@@ -1,6 +1,10 @@
-package com.zetapush.library
+package com.zetapush.library.clients
 
 import android.content.Context
+import com.zetapush.library.storages.credentials.KeyValueCredentialsStorage
+import com.zetapush.library.storages.token.KeyValueTokenStorage
+import com.zetapush.library.storages.credentials.StorageCredentialsInterface
+import com.zetapush.library.storages.token.StorageTokenInterface
 
 class WeakClient(
     businessId: String,

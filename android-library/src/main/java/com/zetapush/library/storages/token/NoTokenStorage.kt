@@ -1,4 +1,4 @@
-package com.zetapush.library
+package com.zetapush.library.storages.token
 
 class NoTokenStorage : StorageTokenInterface {
 
@@ -10,6 +10,10 @@ class NoTokenStorage : StorageTokenInterface {
         get() = null
 
     override fun clearToken() {
+        // Do nothing
+    }
+
+    override fun migrateToSecuredStorageIfNeeded() {
         // Do nothing
     }
 }

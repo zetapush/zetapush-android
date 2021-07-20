@@ -1,6 +1,6 @@
-package com.zetapush.library
+package com.zetapush.library.storages.credentials
 
-data class Credentials(val login: String? = null, val password: String? = null)
+import com.zetapush.library.storages.credentials.Credentials
 
 interface StorageCredentialsInterface {
 
@@ -23,4 +23,10 @@ interface StorageCredentialsInterface {
      * Clear the saved credentials
      */
     fun clearCredentials()
+
+    /**
+     * Migrate credentials to a secured storage if needed. Remove this method after 01/01/2022
+     */
+    @Deprecated(message = "Remove this method after 01/01/2022")
+    fun migrateToSecuredStorageIfNeeded()
 }
