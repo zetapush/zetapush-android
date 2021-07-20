@@ -24,12 +24,12 @@ class KeyValueCredentialsStorage(
 
     override fun saveCredentials(login: String?, password: String?) {
         val editor = encryptedSharedPreferences.edit()
-        login?.let { login ->
+
+        if(!login.isNullOrBlank() || !password.isNullOrBlank()) {
             editor.putString(keyLogin, login)
-        }
-        password?.let { password ->
             editor.putString(keyPassword, password)
         }
+
         editor.apply()
     }
 
@@ -43,20 +43,16 @@ class KeyValueCredentialsStorage(
 
     override fun clearCredentials() {
         val edit = encryptedSharedPreferences.edit()
-        encryptedSharedPreferences.all.forEach { edit.remove(it.key) }
+        edit.clear()
         edit.apply()
     }
 
     override fun migrateToSecuredStorageIfNeeded() {
         if (sharedPreferences.getBoolean(Constant.migrationKey, false)) return
 
-        sharedPreferences.getString(keyLogin, null)?.let { login ->
-            saveCredentials(login, null)
-        }
-
-        sharedPreferences.getString(keyPassword, null)?.let { password ->
-            saveCredentials(null, password)
-        }
+        val login = sharedPreferences.getString(keyLogin, null)
+        val password = sharedPreferences.getString(keyPassword, null)
+        saveCredentials(login, password)
 
         val editor = sharedPreferences.edit()
         editor.putBoolean(Constant.migrationKey, true)

@@ -23,11 +23,11 @@ class KeyValueTokenStorage(
     private val encryptedSharedPreferences: SharedPreferences = EncryptedSharedPreferenceFactory.createSharedPref(sharedPreferencesName, context)
 
     override fun saveToken(token: String?) {
-        val editor = encryptedSharedPreferences.edit()
-        token?.let { token ->
-            editor.putString(keyToken, token)
+        token?.let {
+            val editor = encryptedSharedPreferences.edit()
+            editor.putString(keyToken, it)
+            editor.apply()
         }
-        editor.apply()
     }
 
     override val token: String?
@@ -35,16 +35,15 @@ class KeyValueTokenStorage(
 
     override fun clearToken() {
         val edit = encryptedSharedPreferences.edit()
-        encryptedSharedPreferences.all.forEach { edit.remove(it.key) }
+        edit.clear()
         edit.apply()
     }
 
     override fun migrateToSecuredStorageIfNeeded() {
         if (sharedPreferences.getBoolean(Constant.migrationKey, false)) return
 
-        sharedPreferences.getString(keyToken, null)?.let { token ->
-            saveToken(token)
-        }
+        val token = sharedPreferences.getString(keyToken, null)
+        saveToken(token)
 
         val editor = sharedPreferences.edit()
         editor.putBoolean(Constant.migrationKey, true)
