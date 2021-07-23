@@ -43,7 +43,7 @@ class KeyValueCredentialsStorage(
 
     override fun clearCredentials() {
         val edit = encryptedSharedPreferences.edit()
-        edit.clear()
+        encryptedSharedPreferences.all.forEach { edit.remove(it.key) }
         edit.apply()
     }
 
