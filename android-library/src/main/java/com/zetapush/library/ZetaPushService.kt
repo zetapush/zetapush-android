@@ -9,6 +9,7 @@ import com.zetapush.common.messages.ZetaApiError
 import com.zetapush.library.storages.credentials.Credentials
 import com.zetapush.library.storages.credentials.StorageCredentialsInterface
 import com.zetapush.library.storages.token.StorageTokenInterface
+import java.lang.Exception
 
 class ZetaPushService(
     private val businessId: String,
@@ -23,6 +24,7 @@ class ZetaPushService(
     private var disconnectCompletion: (() -> Unit)? = null
 
     var listener: ConnectionStatusListener? = null
+
     /**
      * Return the ZetaPush client
      *
@@ -88,6 +90,7 @@ class ZetaPushService(
         storageCredentialsHandler.migrateToSecuredStorageIfNeeded()
         storageTokenHandler.migrateToSecuredStorageIfNeeded()
     }
+
     /**
      * Set the handler to store credentials
      *
@@ -114,18 +117,17 @@ class ZetaPushService(
      */
     fun connectionAsSimpleAuthentication(login: String, password: String) {
         storageCredentialsHandler.saveCredentials(login, password)
-//        Thread(Runnable { // FIXME : avoid using this here
-            Log.d("ZP", "connectionAsSimpleAuthentication")
-            zetaPushClient = ZetapushClientFactory.create(
-                null, null,
-                businessId,
-                ZetapushAuthentFactory.createSimpleHandshake(login, password, simpleDeployId),
-                options,
-                resourceId
-            )
-            zetaPushClient?.addConnectionStatusListener(this)
-            zetaPushClient?.start()
-//        }).start()
+
+        Log.d("ZP", "connectionAsSimpleAuthentication")
+        zetaPushClient = ZetapushClientFactory.create(
+            null, null,
+            businessId,
+            ZetapushAuthentFactory.createSimpleHandshake(login, password, simpleDeployId),
+            options,
+            resourceId
+        )
+        zetaPushClient?.addConnectionStatusListener(this)
+        zetaPushClient?.start()
     }
 
     /**
@@ -135,19 +137,18 @@ class ZetaPushService(
 
         val token = storageTokenHandler.token
 
-//        Thread(Runnable { // FIXME : avoid using this here
-            Log.d("ZP", "connectionAsWeakAuthentication")
+        Log.d("ZP", "connectionAsWeakAuthentication")
 
-            zetaPushClient = ZetapushClientFactory.create(
-                null, null,
-                businessId,
-                ZetapushAuthentFactory.createWeakHandshake(token, weakDeployId),
-                options,
-                resourceId
-            )
-            zetaPushClient?.addConnectionStatusListener(this)
-            zetaPushClient?.start()
-//        }).start()
+        zetaPushClient = ZetapushClientFactory.create(
+            null, null,
+            businessId,
+            ZetapushAuthentFactory.createWeakHandshake(token, weakDeployId),
+            options,
+            resourceId
+        )
+        zetaPushClient?.addConnectionStatusListener(this)
+        zetaPushClient?.start()
+
 
         zetaPushClient?.handshake(ZetapushAuthentFactory.createWeakHandshake(token, weakDeployId))
     }
@@ -159,12 +160,14 @@ class ZetaPushService(
 
         disconnectCompletion = completion
 
-        storageCredentialsHandler.clearCredentials()
-        storageTokenHandler.clearToken()
+        try {
+            storageCredentialsHandler.clearCredentials()
+            storageTokenHandler.clearToken()
+        } catch (error: Exception) {
+            Log.e("ZP", "error during clearing credentials")
+        }
 
-//        Thread(Runnable { // FIXME : avoid using this here
-            zetaPushClient?.stop()
-//        }).start()
+        zetaPushClient?.stop()
     }
 
     override fun successfulHandshake(map: Map<String, Any>) {

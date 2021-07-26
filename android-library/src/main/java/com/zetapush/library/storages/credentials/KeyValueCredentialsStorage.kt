@@ -43,7 +43,8 @@ class KeyValueCredentialsStorage(
 
     override fun clearCredentials() {
         val edit = encryptedSharedPreferences.edit()
-        edit.clear()
+        edit.remove(keyLogin)
+        edit.remove(keyPassword)
         edit.apply()
     }
 
@@ -54,9 +55,17 @@ class KeyValueCredentialsStorage(
         val password = sharedPreferences.getString(keyPassword, null)
         saveCredentials(login, password)
 
+        clearAllOldCredentials()
+
         val editor = sharedPreferences.edit()
         editor.putBoolean(Constant.migrationKey, true)
         editor.apply()
+    }
 
+    private fun clearAllOldCredentials() {
+        val edit = sharedPreferences.edit()
+        edit.remove(keyLogin)
+        edit.remove(keyPassword)
+        edit.apply()
     }
 }

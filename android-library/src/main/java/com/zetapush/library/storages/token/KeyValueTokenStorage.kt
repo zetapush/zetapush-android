@@ -35,7 +35,7 @@ class KeyValueTokenStorage(
 
     override fun clearToken() {
         val edit = encryptedSharedPreferences.edit()
-        edit.clear()
+        edit.remove(keyToken)
         edit.apply()
     }
 
@@ -45,8 +45,17 @@ class KeyValueTokenStorage(
         val token = sharedPreferences.getString(keyToken, null)
         saveToken(token)
 
+        clearAllOldToken()
+
         val editor = sharedPreferences.edit()
         editor.putBoolean(Constant.migrationKey, true)
         editor.apply()
     }
+
+    private fun clearAllOldToken() {
+        val edit = sharedPreferences.edit()
+        edit.remove(keyToken)
+        edit.apply()
+    }
+
 }
